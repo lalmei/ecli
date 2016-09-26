@@ -32,9 +32,7 @@ and usage of using your command.
   worklist cd /
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
 		fmt.Println(cmd.UsageString())
-		//fmt.Println("worklist called")
 	},
 }
 

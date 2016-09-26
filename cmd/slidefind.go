@@ -18,42 +18,52 @@ import (
 	"fmt"
 	"log"
 
-	"ecli/config"
 	"ecli/keeneye"
 
 	"github.com/spf13/cobra"
 )
 
-// logoutCmd represents the logout command
-var logoutCmd = &cobra.Command{
-	Use:   "logout",
-	Short: "Close current session",
+// slidefindCmd represents the slidefind command
+var slidefindCmd = &cobra.Command{
+	Use:     "find",
+	Short:   "Find a slide by criteria",
+	Example: "Doo",
 	Run: func(cmd *cobra.Command, args []string) {
-		tok, err := config.LoadToken()
+		if len(args) == 0 {
+			log.Fatal("Please provide a search term as argument.")
+		}
+		res, err := keeneye.Search(args[0])
 		if err != nil {
-			log.Fatalf("You are not logged in. Please run %q first.", loginCmd.CommandPath())
-		}
-		if err := keeneye.CloseSession(tok); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Your session is now closed.")
-		if err := config.DeleteTokenFile(); err != nil {
-			log.Fatal(err)
+		for _, e := range res {
+			if _, ok := e.(map[string]interface{}); ok {
+				gg := e.(map[string]interface{})
+				if len(gg) == 0 {
+					continue
+				}
+				fmt.Printf("%-24s %-4s %-25s %s %s\n", "IID", "ID", "Name", "Filename", "Size (B)")
+				fmt.Printf("----------------------------------------------------------------------------------\n")
+				for _, val := range gg {
+					gh := val.(map[string]interface{})
+					fmt.Printf("%24s %-4.0f %-25q %q %.0f\n", gh["id"], gh["slideId"], gh["name"], gh["file"], gh["size"])
+				}
+			}
 		}
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(logoutCmd)
+	slideCmd.AddCommand(slidefindCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// logoutCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// slidefindCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// logoutCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// slidefindCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 }
