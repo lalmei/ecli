@@ -28,6 +28,9 @@ var worklistCmd = &cobra.Command{
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command.
 `,
+	Example: `Go to the root of the work list with
+  worklist cd /
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
 		fmt.Println(cmd.UsageString())
@@ -47,5 +50,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// worklistCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	worklistCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 }

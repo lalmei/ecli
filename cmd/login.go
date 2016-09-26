@@ -16,8 +16,13 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+
+	"ecli/config"
+	"ecli/keeneye"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // loginCmd represents the login command
@@ -31,8 +36,14 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("login called")
+		token, err := keeneye.OpenSession(viper.GetString("login"), viper.GetString("password"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := config.SaveToken(token); err != nil {
+			log.Fatalf("can't save session token: %q", err.Error())
+		}
+		fmt.Println("You have been logged in successfully")
 	},
 }
 

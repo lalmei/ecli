@@ -16,6 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+
+	"ecli/config"
+	"ecli/keeneye"
 
 	"github.com/spf13/cobra"
 )
@@ -23,16 +27,19 @@ import (
 // logoutCmd represents the logout command
 var logoutCmd = &cobra.Command{
 	Use:   "logout",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Close current session",
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("logout called")
+		tok, err := config.LoadToken()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := keeneye.CloseSession(tok); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Your session is now closed.")
+		if err := config.DeleteTokenFile(); err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 
