@@ -1,7 +1,9 @@
 GO_BUILD64=GOARCH=amd64 go build
 BIN=ecli
 
-all:
+all: build
+
+build:
 	${GO_BUILD64} -o ${BIN}
 
 darwin:
@@ -12,3 +14,6 @@ install:
 
 clean:
 	rm -f ecli
+	#
+# Optional deploy rules
+-include deploy.mk
