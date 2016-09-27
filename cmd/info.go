@@ -15,23 +15,37 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"strconv"
 
+	"ecli/keeneye"
+
+	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Get slide information",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("args", args)
+		if len(args) == 0 {
+			log.Fatal("Please provide a slide ID, either as int or hex string.")
+		}
+		id, err := strconv.ParseUint(args[0], 10, 64)
+		if err != nil {
+			log.Fatalf("Slide ID must be an integer, not %q", args[0])
+		}
+		res, err := keeneye.SlideInfo(id)
+		if err != nil {
+			log.Fatal(err)
+		}
+		d, err := json.MarshalIndent(res, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf(string(d))
 	},
 }
 
@@ -47,5 +61,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// infoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }
