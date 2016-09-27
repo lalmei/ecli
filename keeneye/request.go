@@ -2,7 +2,10 @@ package keeneye
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
+
+	"ecli/config"
 
 	json "github.com/gorilla/rpc/v2/json2"
 )
@@ -31,6 +34,12 @@ func sendRequest(method string, args interface{}) (interface{}, error) {
 	var result interface{}
 	err = json.DecodeClientResponse(resp.Body, &result)
 	if err != nil {
+		if err.Error() == "TokenExpired" {
+			if err := config.DeleteTokenFile(); err != nil {
+				return nil, err
+			}
+			return nil, fmt.Errorf("Your session expired. Please run log in again.")
+		}
 		return nil, err
 	}
 	return result, nil
