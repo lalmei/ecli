@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
 )
@@ -30,6 +31,9 @@ func SaveToken(token string) error {
 func LoadToken() (string, error) {
 	f, err := os.Open(absTokenFile())
 	if err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf("You are not logged in. Please run log in first.")
+		}
 		return "", err
 	}
 	defer f.Close()
