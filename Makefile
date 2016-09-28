@@ -13,7 +13,7 @@ install:
 	go install
 
 clean:
-	rm -f ecli
-	#
+	rm -f ecli ecli.xz
+
 # Optional deploy rules
 -include deploy.mk
