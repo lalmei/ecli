@@ -16,23 +16,42 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+
+	"ecli/keeneye"
 
 	"github.com/spf13/cobra"
 )
 
 // findCmd represents the find command
 var findCmd = &cobra.Command{
-	Use:   "find",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:     "find",
+	Short:   "Find slides or groups by criteria",
+	Example: `ecli find "test slide"`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("find called")
+		if len(args) == 0 {
+			log.Fatal("Please provide a search term as argument.")
+		}
+		res, err := keeneye.Search(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, e := range res {
+			if _, ok := e.(map[string]interface{}); ok {
+				gg := e.(map[string]interface{})
+				if len(gg) == 0 {
+					continue
+				}
+				for _, val := range gg {
+					gh := val.(map[string]interface{})
+					if _, ok := gh["slideId"]; ok {
+						fmt.Printf("%-5s %24s %-.0f %q (%q, %.0f bytes)\n", "slide", gh["id"], gh["slideId"], gh["name"], gh["file"], gh["size"])
+					} else {
+						fmt.Printf("%-5s %24s %-25q\n", "group", gh["id"], gh["name"])
+					}
+				}
+			}
+		}
 	},
 }
 

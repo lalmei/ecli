@@ -27,8 +27,9 @@ import (
 
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
-	Use:   "info",
-	Short: "Get slide information",
+	Use:     "info",
+	Aliases: []string{"i"},
+	Short:   "Get slide information",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			log.Fatal("Please provide a slide ID, either as int or hex string.")
