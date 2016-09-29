@@ -1,19 +1,19 @@
-package keeneye
+package api
 
 import (
 	"ecli/config"
 )
 
-func SlideInfo(id uint64) (map[string]interface{}, error) {
+func Search(term string) (map[string]interface{}, error) {
 	tok, err := config.LoadToken()
 	if err != nil {
 		return nil, err
 	}
 	p := map[string]interface{}{
-		"token":   tok,
-		"slideId": id,
+		"token": tok,
+		"term":  term,
 	}
-	v, err := sendRequest("KeenEye.SlideInfo", p)
+	v, err := sendRequest("KeenEye.Search", p)
 	if err != nil {
 		return nil, err
 	}

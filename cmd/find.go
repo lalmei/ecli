@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"log"
 
-	"ecli/keeneye"
+	"ecli/api"
 
 	"github.com/spf13/cobra"
 )
@@ -32,7 +32,7 @@ var findCmd = &cobra.Command{
 		if len(args) == 0 {
 			log.Fatal("Please provide a search term as argument.")
 		}
-		res, err := keeneye.Search(args[0])
+		res, err := api.Search(args[0])
 		if err != nil {
 			log.Fatal(err)
 		}

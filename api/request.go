@@ -1,4 +1,4 @@
-package keeneye
+package api
 
 import (
 	"bytes"

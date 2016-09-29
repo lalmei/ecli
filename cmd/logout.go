@@ -19,7 +19,7 @@ import (
 	"log"
 
 	"ecli/config"
-	"ecli/keeneye"
+	"ecli/api"
 
 	"github.com/spf13/cobra"
 )
@@ -33,7 +33,7 @@ var logoutCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("You are not logged in. Please run %q first.", loginCmd.CommandPath())
 		}
-		if err := keeneye.CloseSession(tok); err != nil {
+		if err := api.CloseSession(tok); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println("Your session is now closed.")

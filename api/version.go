@@ -1,4 +1,4 @@
-package keeneye
+package api
 
 func Version() (string, error) {
 	v, err := sendRequest("KeenEye.Version", nil)

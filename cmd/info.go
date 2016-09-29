@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"ecli/keeneye"
+	"ecli/api"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -33,7 +33,7 @@ func slideInfo(args []string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Slide ID must be an integer, not %q", args[0])
 	}
-	res, err := keeneye.SlideInfo(id)
+	res, err := api.SlideInfo(id)
 	if err != nil {
 		return nil, err
 	}

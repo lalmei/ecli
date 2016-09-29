@@ -19,7 +19,7 @@ import (
 	"log"
 
 	"ecli/config"
-	"ecli/keeneye"
+	"ecli/api"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,7 +30,7 @@ var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Open a session",
 	Run: func(cmd *cobra.Command, args []string) {
-		token, err := keeneye.OpenSession(viper.GetString("login"), viper.GetString("password"))
+		token, err := api.OpenSession(viper.GetString("login"), viper.GetString("password"))
 		if err != nil {
 			log.Fatal(err)
 		}

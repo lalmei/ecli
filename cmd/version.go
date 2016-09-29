@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"log"
 
-	"ecli/keeneye"
+	"ecli/api"
 
 	"github.com/spf13/cobra"
 )
@@ -28,7 +28,7 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Show engine's API version",
 	Run: func(cmd *cobra.Command, args []string) {
-		v, err := keeneye.Version()
+		v, err := api.Version()
 		if err != nil {
 			log.Fatalf("%s", err)
 		}

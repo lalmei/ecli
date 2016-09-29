@@ -1,4 +1,4 @@
-package keeneye
+package api
 
 // OpenSession returns a token upon successul authentication.
 func OpenSession(login, password string) (string, error) {
