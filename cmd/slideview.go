@@ -16,7 +16,8 @@ package cmd
 
 import (
 	"log"
-	"os/exec"
+
+	"ecli/core"
 
 	"github.com/spf13/cobra"
 )
@@ -40,8 +41,7 @@ var slideviewCmd = &cobra.Command{
 			log.Fatal("slide has no viewer URL info")
 		}
 		vurl := v.(string)
-		cc := exec.Command("xdg-open", vurl)
-		if err := cc.Run(); err != nil {
+		if err := core.Open(vurl); err != nil {
 			log.Fatal(err)
 		}
 	},
