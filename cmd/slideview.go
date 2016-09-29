@@ -15,59 +15,49 @@
 package cmd
 
 import (
-	"encoding/json"
-	"fmt"
-	"strconv"
+	"log"
+	"os/exec"
 
-	"ecli/keeneye"
-
-	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-func slideInfo(args []string) (map[string]interface{}, error) {
-	if len(args) == 0 {
-		return nil, fmt.Errorf("Please provide a slide ID, either as int or hex string.")
-	}
-	id, err := strconv.ParseUint(args[0], 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("Slide ID must be an integer, not %q", args[0])
-	}
-	res, err := keeneye.SlideInfo(id)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-// infoCmd represents the info command
-var infoCmd = &cobra.Command{
-	Use:     "info",
-	Aliases: []string{"i"},
-	Short:   "Get slide information",
+// slideviewCmd represents the slideview command
+var slideviewCmd = &cobra.Command{
+	Use:     "view",
+	Aliases: []string{"v"},
+	Short:   "Open default browser to view the slide in the viewer",
 	Run: func(cmd *cobra.Command, args []string) {
 		res, err := slideInfo(args)
 		if err != nil {
 			log.Fatal(err)
 		}
-		d, err := json.MarshalIndent(res, "", "  ")
-		if err != nil {
+		u, ok := res["url"]
+		if !ok {
+			log.Fatal("slide has no URL info")
+		}
+		v, ok := u.(map[string]interface{})["viewer"]
+		if !ok {
+			log.Fatal("slide has no viewer URL info")
+		}
+		vurl := v.(string)
+		cc := exec.Command("xdg-open", vurl)
+		if err := cc.Run(); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf(string(d))
 	},
 }
 
 func init() {
-	slideCmd.AddCommand(infoCmd)
+	slideCmd.AddCommand(slideviewCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// infoCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// slideviewCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// infoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// slideviewCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
 }
