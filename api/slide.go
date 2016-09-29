@@ -1,16 +1,7 @@
 package api
 
-import (
-	"ecli/config"
-)
-
 func SlideInfo(id uint64) (map[string]interface{}, error) {
-	tok, err := config.LoadToken()
-	if err != nil {
-		return nil, err
-	}
 	p := map[string]interface{}{
-		"token":   tok,
 		"slideId": id,
 	}
 	v, err := sendRequest("KeenEye.SlideInfo", p)

@@ -1,7 +1,8 @@
 package api
 
 // OpenSession returns a token upon successul authentication.
-func OpenSession(login, password string) (string, error) {
+func OpenSession(url, login, password string) (string, error) {
+	serverAddress = url
 	p := map[string]interface{}{
 		"login":    login,
 		"password": password,
@@ -13,10 +14,8 @@ func OpenSession(login, password string) (string, error) {
 	return v.(map[string]interface{})["token"].(string), err
 }
 
-func CloseSession(token string) error {
-	p := map[string]interface{}{
-		"token": token,
-	}
+func CloseSession() error {
+	p := make(map[string]interface{})
 	_, err := sendRequest("KeenEye.CloseSession", p)
 	if err != nil {
 		return err

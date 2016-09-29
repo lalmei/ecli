@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"log"
 
-	"ecli/config"
 	"ecli/api"
+	"ecli/config"
 
 	"github.com/spf13/cobra"
 )
@@ -29,11 +29,7 @@ var logoutCmd = &cobra.Command{
 	Use:   "logout",
 	Short: "Close current session",
 	Run: func(cmd *cobra.Command, args []string) {
-		tok, err := config.LoadToken()
-		if err != nil {
-			log.Fatalf("You are not logged in. Please run %q first.", loginCmd.CommandPath())
-		}
-		if err := api.CloseSession(tok); err != nil {
+		if err := api.CloseSession(); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println("Your session is now closed.")

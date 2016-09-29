@@ -10,11 +10,20 @@ import (
 	json "github.com/gorilla/rpc/v2/json2"
 )
 
-const (
-	serverAddress = "https://dev.keeneyetechnologies.com/api/v2"
-)
+var serverAddress string
 
 func sendRequest(method string, args interface{}) (interface{}, error) {
+	serverAddress, tok, err := config.LoadSession()
+	if err != nil {
+		return nil, err
+	}
+	if serverAddress == "" {
+		return nil, fmt.Errorf("empty server url, cannot access endpoint")
+	}
+	if args != nil {
+		args.(map[string]interface{})["token"] = tok
+	}
+
 	message, err := json.EncodeClientRequest(method, args)
 	if err != nil {
 		return nil, err

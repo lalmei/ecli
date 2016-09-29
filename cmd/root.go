@@ -23,9 +23,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-const version = "0.2.1"
+const version = "0.3"
 
 var cfgFile string
+
+func showHelpAndExit(cmd *cobra.Command, msg string) {
+	fmt.Printf("%s\n\n", msg)
+	fmt.Println(cmd.UsageString())
+	os.Exit(1)
+}
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -78,8 +84,16 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Println(`Please first create a config file in $HOME/.ecli.json with the following content:
 {
-  "login": "yourlogin",
-  "password: "yourpassword"
+  "profile1": {
+    "login": "something",
+    "password: "else",
+	"url": "https://somehost.keeneyetechnologies.com/api/v2",
+  },
+  "profile2": {
+    "login": "something",
+    "password: "else",
+	"url": "https://somehost.keeneyetechnologies.com/api/v2",
+  }
 }`)
 		os.Exit(1)
 	}

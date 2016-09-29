@@ -30,7 +30,7 @@ var findCmd = &cobra.Command{
 	Example: `ecli find "test slide"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			log.Fatal("Please provide a search term as argument.")
+			showHelpAndExit(cmd, "Please provide a search term as argument.")
 		}
 		res, err := api.Search(args[0])
 		if err != nil {

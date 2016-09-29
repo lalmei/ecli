@@ -17,9 +17,10 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"strings"
 
-	"ecli/config"
 	"ecli/api"
+	"ecli/config"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,14 +31,31 @@ var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Open a session",
 	Run: func(cmd *cobra.Command, args []string) {
-		token, err := api.OpenSession(viper.GetString("login"), viper.GetString("password"))
+		if len(args) == 0 {
+			showHelpAndExit(cmd, fmt.Sprintf("Please provide a profile name among %q",
+				strings.Join(viper.AllKeys(), ", ")))
+		}
+		creds := viper.GetStringMapString(args[0])
+		if len(creds) == 0 {
+			log.Fatalf("no profile named %q. Please check your config file.", args[0])
+		}
+		// Hack to first store a session file, giving an empty token.
+		_, tok, err := config.LoadSession()
+		ztok := ""
+		if err == nil {
+			ztok = tok
+		}
+		if err := config.StoreSession(creds["url"], ztok); err != nil {
+			log.Fatalf("can't save session info: %q", err.Error())
+		}
+		token, err := api.OpenSession(creds["url"], creds["login"], creds["password"])
 		if err != nil {
 			log.Fatal(err)
 		}
-		if err := config.SaveToken(token); err != nil {
-			log.Fatalf("can't save session token: %q", err.Error())
+		if err := config.StoreSession(creds["url"], token); err != nil {
+			log.Fatalf("can't save session info: %q", err.Error())
 		}
-		fmt.Println("You have been logged in successfully")
+		fmt.Printf("%s: you have been logged in successfully.\n", args[0])
 	},
 }
 
