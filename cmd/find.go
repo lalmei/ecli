@@ -36,20 +36,19 @@ var findCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, e := range res {
-			if _, ok := e.(map[string]interface{}); ok {
-				gg := e.(map[string]interface{})
-				if len(gg) == 0 {
-					continue
-				}
-				for _, val := range gg {
-					gh := val.(map[string]interface{})
-					if _, ok := gh["slideId"]; ok {
-						fmt.Printf("%-5s %24s %-.0f %q (%q, %.0f bytes)\n", "slide", gh["id"], gh["slideId"], gh["name"], gh["file"], gh["size"])
-					} else {
-						fmt.Printf("%-5s %24s %-25q\n", "group", gh["id"], gh["name"])
-					}
-				}
+		for key, reply := range res {
+			if key != "items" {
+				continue
+			}
+			groups := reply.(map[string]interface{})["groups"]
+			for _, s := range groups.([]interface{}) {
+				p := s.(map[string]interface{})
+				fmt.Printf("%-5s %24s %-25q\n", "group", p["id"], p["name"])
+			}
+			slides := reply.(map[string]interface{})["slides"]
+			for _, s := range slides.([]interface{}) {
+				p := s.(map[string]interface{})
+				fmt.Printf("%-5s %24s %-.0f %q (%q, %.0f bytes)\n", "slide", p["id"], p["slideId"], p["name"], p["file"], p["size"])
 			}
 		}
 	},
