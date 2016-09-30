@@ -41,14 +41,22 @@ var findCmd = &cobra.Command{
 				continue
 			}
 			groups := reply.(map[string]interface{})["groups"]
-			for _, s := range groups.([]interface{}) {
-				p := s.(map[string]interface{})
-				fmt.Printf("%-5s %24s %-25q\n", "group", p["id"], p["name"])
+			if groups != nil {
+				for _, s := range groups.([]interface{}) {
+					p := s.(map[string]interface{})
+					fmt.Printf("%-5s %24s %-25q\n", "group", p["id"], p["name"])
+				}
+			} else {
+				log.Fatal("The response has an unexpected format and cannot be displayed.")
 			}
 			slides := reply.(map[string]interface{})["slides"]
-			for _, s := range slides.([]interface{}) {
-				p := s.(map[string]interface{})
-				fmt.Printf("%-5s %24s %-.0f %q (%q, %.0f bytes)\n", "slide", p["id"], p["slideId"], p["name"], p["file"], p["size"])
+			if slides != nil {
+				for _, s := range slides.([]interface{}) {
+					p := s.(map[string]interface{})
+					fmt.Printf("%-5s %24s %-.0f %q (%q, %.0f bytes)\n", "slide", p["id"], p["slideId"], p["name"], p["file"], p["size"])
+				}
+			} else {
+				log.Fatal("The response has an unexpected format and cannot be displayed.")
 			}
 		}
 	},
