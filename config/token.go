@@ -34,7 +34,7 @@ func LoadSession() (string, string, error) {
 	f, err := os.Open(absTokenFile())
 	if err != nil {
 		if os.IsNotExist(err) {
-			return "", "", fmt.Errorf("You are not logged in. Please run log in first.")
+			return "", "", fmt.Errorf("You are not logged in. Please run \"login\" command first.")
 		}
 		return "", "", err
 	}

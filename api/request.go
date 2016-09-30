@@ -47,7 +47,7 @@ func sendRequest(method string, args interface{}) (interface{}, error) {
 			if err := config.DeleteTokenFile(); err != nil {
 				return nil, err
 			}
-			return nil, fmt.Errorf("Your session expired. Please run log in again.")
+			return nil, fmt.Errorf("Your session expired. Please run \"login\" command again.")
 		}
 		return nil, err
 	}
