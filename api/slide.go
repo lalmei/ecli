@@ -11,3 +11,14 @@ func SlideInfo(id uint64) (map[string]interface{}, error) {
 	g := v.(map[string]interface{})
 	return g, nil
 }
+
+func DeleteSlide(id uint64) error {
+	p := map[string]interface{}{
+		"slideIds": []uint64{id},
+	}
+	_, err := sendRequest("KeenEye.DeleteSlides", p)
+	if err != nil {
+		return err
+	}
+	return nil
+}
