@@ -63,7 +63,7 @@ func init() {
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file (default is $HOME/.ecli.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file (default is $HOME/.ecli.json)")
 	RootCmd.PersistentFlags().BoolP("quiet", "q", false, "Quiet mode, no verbose output")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
