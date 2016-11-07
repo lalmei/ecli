@@ -1,7 +1,9 @@
 package api
 
 func ImageTypes() (map[string]interface{}, error) {
-	v, err := sendRequest("KeenEye.ImageTypes", nil)
+	// No explicit parameter, but will add the token.
+	p := map[string]interface{}{}
+	v, err := sendRequest("KeenEye.ImageTypes", p)
 	if err != nil {
 		return nil, err
 	}
