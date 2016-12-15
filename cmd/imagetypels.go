@@ -25,9 +25,13 @@ var imagetypelsCmd = &cobra.Command{
 		if its != nil {
 			for _, it := range its.([]interface{}) {
 				p := it.(map[string]interface{})
-				fmt.Printf("%-30s %-30s %-30s", p["id"], p["name"], p["shortDescription"])
-				if p["icon"] != "" {
-					fmt.Printf(" [icon: yes]")
+				if !cfgQuiet {
+					fmt.Printf("%-30s %-30s %-30s", p["id"], p["name"], p["shortDescription"])
+					if p["icon"] != "" {
+						fmt.Printf(" [icon: yes]")
+					}
+				} else {
+					fmt.Print(p["id"])
 				}
 				fmt.Println()
 			}

@@ -13,7 +13,10 @@ import (
 
 const version = "0.3.2"
 
-var cfgFile string
+var (
+	cfgFile  string
+	cfgQuiet bool
+)
 
 func showHelpAndExit(cmd *cobra.Command, msg string) {
 	fmt.Printf("%s\n\n", msg)
@@ -52,7 +55,7 @@ func init() {
 	// will be global for your application.
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "Config file (default is $HOME/.ecli.json)")
-	RootCmd.PersistentFlags().BoolP("quiet", "q", false, "Quiet mode, no verbose output")
+	RootCmd.PersistentFlags().BoolVarP(&cfgQuiet, "quiet", "q", false, "Quiet mode, no verbose output")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
