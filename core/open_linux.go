@@ -5,6 +5,5 @@ import (
 )
 
 func Open(url string) error {
-	cc := exec.Command("xdg-open", url)
-	return cc.Run()
+	return exec.Command("xdg-open", url).Run()
 }
