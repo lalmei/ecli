@@ -6,8 +6,5 @@ import (
 
 func Open(url string) error {
 	cc := exec.Command("open", url)
-	if err := cc.Run(); err != nil {
-		return err
-	}
-	return nil
+	return cc.Run()
 }
