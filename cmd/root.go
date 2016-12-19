@@ -18,6 +18,18 @@ var (
 	cfgQuiet bool
 )
 
+func errorExit(msg string) {
+	fmt.Fprintln(os.Stderr, msg)
+	os.Exit(1)
+}
+
+func usageErrorExit(cmd *cobra.Command, format string, a ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, a...)
+	fmt.Printf("\n\n")
+	fmt.Println(cmd.UsageString())
+	os.Exit(1)
+}
+
 func showHelpAndExit(cmd *cobra.Command, msg string) {
 	fmt.Printf("%s\n\n", msg)
 	fmt.Println(cmd.UsageString())
