@@ -18,16 +18,22 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httputil"
 	"net/textproto"
 	"os"
+	"path"
 
+	"ecli/config"
 	"github.com/spf13/cobra"
 
 	"gopkg.in/mgo.v2/bson"
 )
+
+// Chunk size is 512k
+const ChunkSize = 512 * 1024
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
@@ -44,49 +50,51 @@ to quickly create a Cobra application.`,
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing image file.")
 		}
+		endpoint, token, err := config.LoadSession()
+		if err != nil {
+			errorExit(err)
+		}
+		if err := upload(args[0], endpoint, token); err != nil {
+			errorExit(err)
+		}
 	},
 }
 
-/*
-	The generated HTTP request must look like:
+func upload(filename, endpoint, token string) error {
+	// Get file size
+	fi, err := os.Stat(filename)
+	if err != nil {
+		return err
+	}
+	size := fi.Size()
 
-	Minimal request header:
-		Content-Range: bytes 0-499999/973334
-		Content-Disposition: attachment; filename="image_152.tiff"
-		Content-Length: 500758
-		Content-Type: multipart/form-data; boundary=---------------------------15160088341497182101124616286
-
-	Body:
-		-----------------------------15160088341497182101124616286
-		Content-Disposition: form-data; name="extra"
-
-		{"token":"atoken", "slideId": 123}
-		-----------------------------15160088341497182101124616286
-		Content-Disposition: form-data; name="files[]"; filename="annotations.json"
-		Content-Type: application/json
-
-		["a valid JSON annotations document"]
-		-----------------------------15160088341497182101124616286
-*/
-func upload(file string) error {
-	// Chunk size is 512k
-	buf := make([]byte, 512*1024)
-	f, err := os.Open("dd")
+	buf := make([]byte, ChunkSize)
+	f, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+
+	k := 1
+	mtype := "application/json" // FIXME: compute from first chunk
+	var offset int64
 	for {
-		_, err := f.Read(buf)
+		n, err := f.Read(buf)
+		if err != nil {
+			if err == io.EOF && n == 0 {
+				break
+			}
+			return err
+		}
+		min, max := offset, offset+int64(n)-1
+		fmt.Printf("chunk %d (%d-%d/%d) ...\n", k, min, max, size)
+		offset += int64(n)
+		k++
+
+		_, err = makeMultiPartChunkedRequest(path.Base(filename), endpoint, token, min, max, size, mtype, buf)
 		if err != nil {
 			return err
 		}
-		/*
-			_, err = makeMultiPartChunkedRequest(file, "TOKEN HERE", buf)
-			if err != nil {
-				return err
-			}
-		*/
 	}
 	return nil
 }
@@ -106,39 +114,56 @@ type label struct {
 	Description string `json:"description"`
 }
 
-type uploadSlideArgs struct {
-	Token     string        `json:"token"`
-	ParentId  bson.ObjectId `json:"parentId"`
-	SlideName string        `json:"slideName"`
-	// Path to the raw data. Can point to either a regular file
-	// or directory.
-	Path      string         `json:"path"`
+type uploadImageArgs struct {
+	Token     string         `json:"token"`
+	ParentId  bson.ObjectId  `json:"parentId"`
+	SlideName string         `json:"slideName"`
 	PixelSize slidePixelSize `json:"pixelSize"`
-	// Date as a string so we can define custom format
-	// requirement anytime.
-	StartDate string   `json:"startDate"`
-	filename  string   // Current filename being uploaded
-	Labels    []*label `json:"labels"`
-	Kind      string   `json:"imageType"` // Image type, if any
+	Labels    []*label       `json:"labels"`
+	ImageType string         `json:"imageType"`
 }
 
 type simpleReader struct {
 	*bytes.Buffer
 }
 
-func makeMultiPartChunkedRequest(filename string, token string, content []byte) (*http.Request, error) {
+/*
+	The generated HTTP request must look like:
+
+	Recommanded request header:
+		User-Agent: Engine CLI
+		Content-Range: bytes 0-499999/973334
+		Content-Disposition: attachment; filename="image_152.tiff"
+		Content-Length: 500758
+		Content-Type: multipart/form-data; boundary=---------------------------15160088341497182101124616286
+
+	Body:
+		-----------------------------15160088341497182101124616286
+		Content-Disposition: form-data; name="extra"
+
+		{"pixelSize":{"value":0.92,"unit":"um"},"slideName":"name","token":"atoken","parentId":"58518280e7798910f77ca485","labels":[{"name":"cell type 1","color":"#5cb85c","description":""}],"imageType":"generic-image"}
+		-----------------------------15160088341497182101124616286
+		Content-Disposition: form-data; name="files[]"; filename="annotations.json"
+		Content-Type: image/tiff
+
+		["a valid JSON annotations document"]
+		-----------------------------15160088341497182101124616286
+
+min-max specify the content range within the file.
+*/
+func makeMultiPartChunkedRequest(filename, endpoint, token string, min, max, size int64, contentType string, chunk []byte) (*http.Request, error) {
 	buf := new(bytes.Buffer)
 	mp := multipart.NewWriter(buf)
 	defer mp.Close()
-	mtype := "application/json"
 
 	// Creates part for extra data required by Coquelicot.
 	partw, err := mp.CreateFormField("extra")
 	if err != nil {
 		return nil, err
 	}
-	args := new(uploadSlideArgs)
+	args := new(uploadImageArgs)
 	args.Token = token
+	args.SlideName = filename
 	data, err := json.Marshal(args)
 	if err != nil {
 		return nil, err
@@ -151,26 +176,29 @@ func makeMultiPartChunkedRequest(filename string, token string, content []byte) 
 	// content type, not the default application/octet-stream.
 	h := make(textproto.MIMEHeader)
 	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, "files[]", filename))
-	h.Set("Content-Type", mtype)
+	h.Set("Content-Type", contentType)
 	partw, err = mp.CreatePart(h)
 	if err != nil {
 		return nil, err
 	}
-	if _, err := partw.Write(content); err != nil {
-		return nil, err
-	}
+	/*
+		if _, err := partw.Write(chunk); err != nil {
+			return nil, err
+		}
+	*/
 
-	r, _ := http.NewRequest("POST", "/endpoint", simpleReader{buf}) // FIXME
+	r, _ := http.NewRequest("POST", endpoint, simpleReader{buf})
 
 	r.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 	r.Header.Set("Content-Type", fmt.Sprintf("multipart/form-data; boundary=%s", mp.Boundary()))
 	// Coquelicot only reads (and stores) the part named "files[]". So the Content-Range must be the length
 	// of that part's body, NOT the length of the body of all parts in the request.
-	r.Header.Set("Content-Range", fmt.Sprintf("bytes 0-%d/%d", len(content)-1, len(content)))
+	// FIXME r.Header.Set("Content-Range", fmt.Sprintf("bytes 0-%d/%d", len(content)-1, len(content)))
+	r.Header.Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", min, max, size))
 
 	// Set to true to print the HTTP request. Beware that printing the request's body will make it unavailable
 	// for later processing.
-	debug := false
+	debug := true
 	if debug {
 		dump, err := httputil.DumpRequest(r, true)
 		if err != nil {

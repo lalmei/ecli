@@ -18,8 +18,8 @@ var (
 	cfgQuiet bool
 )
 
-func errorExit(msg string) {
-	fmt.Fprintln(os.Stderr, msg)
+func errorExit(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
 	os.Exit(1)
 }
 
