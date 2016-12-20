@@ -14,10 +14,8 @@ import (
 const version = "0.3.2"
 
 var (
-	cfgFile      string
-	cfgQuiet     bool
-	cfgDebug     bool
-	cfgChunkSize uint16
+	cfgFile  string
+	cfgQuiet bool
 )
 
 func errorExit(err error) {

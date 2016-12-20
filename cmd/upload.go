@@ -21,12 +21,17 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httputil"
 	"net/textproto"
 	"os"
 	"path"
+	"strings"
 
+	"ecli/api"
 	"ecli/config"
+	"ecli/core"
+
 	"github.com/spf13/cobra"
 
 	"gopkg.in/mgo.v2/bson"
@@ -35,6 +40,15 @@ import (
 const (
 	ChunkSize    = 512 // Chunk size is 512kB
 	minChunkSize = 64  // kB
+)
+
+var (
+	cfgDebug          bool
+	cfgChunkSize      uint16
+	cfgParentId       string
+	cfgImageType      string
+	cfgPixelSizeValue float64
+	cfgPixelSizeUnit  string
 )
 
 // uploadCmd represents the upload command
@@ -52,13 +66,25 @@ to quickly create a Cobra application.`,
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing image file.")
 		}
+		endpoint, token, err := config.LoadSession()
+		if err != nil {
+			errorExit(err)
+		}
+		// Quick hack
+		endpoint = strings.Replace(endpoint, "/api/v2", "/upload/files", 1)
 		// Only Chunk size > minChunkSize allowed
 		if cfgChunkSize < minChunkSize {
 			errorExit(fmt.Errorf("Chunk size must be greater than %d", minChunkSize))
 		}
-		endpoint, token, err := config.LoadSession()
-		if err != nil {
-			errorExit(err)
+		if cfgParentId == "" {
+			// Get the root node to attach the image to (as a parent)
+			wl, err := api.WorkList("")
+			if err != nil {
+				errorExit(err)
+			}
+			paths := wl["path"].([]interface{})
+			top := paths[len(paths)-1]
+			cfgParentId = top.(map[string]interface{})["id"].(string)
 		}
 		if err := upload(args[0], endpoint, token); err != nil {
 			errorExit(err)
@@ -81,6 +107,19 @@ func upload(filename, endpoint, token string) error {
 	}
 	defer f.Close()
 
+	// Use a custom HTTP client to send back cookies in requests.
+	cookieJar, err := cookiejar.New(nil)
+	if err != nil {
+		return err
+	}
+	client := &http.Client{
+		Jar: cookieJar,
+	}
+
+	if !cfgDebug {
+		fmt.Printf("Uploading ")
+	}
+
 	var mimeType string // Computed on first chunk of data
 	var offset int64
 	k := 1
@@ -98,15 +137,29 @@ func upload(filename, endpoint, token string) error {
 		}
 
 		min, max := offset, offset+int64(n)-1
-		fmt.Printf("chunk %d (%d-%d/%d) ...\n", k, min, max, size)
+		if cfgDebug {
+			fmt.Printf("chunk %d (%d-%d/%d) ...\n", k, min, max, size)
+		}
 		offset += int64(n)
-		k++
 
-		_, err = makeMultiPartChunkedRequest(path.Base(filename), endpoint, token, min, max, size, mimeType, buf)
+		r, err := makeMultiPartChunkedRequest(path.Base(filename), endpoint, token,
+			bson.ObjectIdHex(cfgParentId), min, max, size, mimeType, buf)
 		if err != nil {
 			return err
 		}
+		if !cfgDebug {
+			resp, err := client.Do(r)
+			if err != nil {
+				return err
+			}
+			if err := core.DebugResponse(resp); err != nil {
+				return err
+			}
+			fmt.Printf(".")
+		}
+		k++
 	}
+	fmt.Printf(" DONE\nImage %q successfully uploaded to the platform.\n", path.Base(filename))
 	return nil
 }
 
@@ -162,7 +215,9 @@ type simpleReader struct {
 
 min-max specify the content range within the file.
 */
-func makeMultiPartChunkedRequest(filename, endpoint, token string, min, max, size int64, contentType string, chunk []byte) (*http.Request, error) {
+func makeMultiPartChunkedRequest(filename, endpoint, token string, parentId bson.ObjectId,
+	min, max, size int64, contentType string, chunk []byte) (*http.Request, error) {
+
 	buf := new(bytes.Buffer)
 	mp := multipart.NewWriter(buf)
 	defer mp.Close()
@@ -175,6 +230,9 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, min, max, siz
 	args := new(uploadImageArgs)
 	args.Token = token
 	args.SlideName = filename
+	args.ParentId = parentId
+	args.ImageType = cfgImageType
+	args.PixelSize = slidePixelSize{cfgPixelSizeValue, cfgPixelSizeUnit}
 	data, err := json.Marshal(args)
 	if err != nil {
 		return nil, err
@@ -199,11 +257,11 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, min, max, siz
 	}
 	r, _ := http.NewRequest("POST", endpoint, simpleReader{buf})
 
+	r.Header.Set("User-Agent", fmt.Sprintf("ecli/%s", version))
 	r.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 	r.Header.Set("Content-Type", fmt.Sprintf("multipart/form-data; boundary=%s", mp.Boundary()))
 	// Coquelicot only reads (and stores) the part named "files[]". So the Content-Range must be the length
 	// of that part's body, NOT the length of the body of all parts in the request.
-	// FIXME r.Header.Set("Content-Range", fmt.Sprintf("bytes 0-%d/%d", len(content)-1, len(content)))
 	r.Header.Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", min, max, size))
 
 	// Set to true to print the HTTP request. Beware that printing the request's body will make it unavailable
@@ -233,4 +291,8 @@ func init() {
 	// uploadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	uploadCmd.Flags().BoolVar(&cfgDebug, "debug", false, "Show request debugging info only")
 	uploadCmd.Flags().Uint16Var(&cfgChunkSize, "chunk-size", ChunkSize, "Chunk size in kB")
+	uploadCmd.Flags().StringVar(&cfgParentId, "parent-id", "", "Image's parent ID (worklist)")
+	uploadCmd.Flags().StringVarP(&cfgImageType, "image-type", "t", "generic-image", "Image type")
+	uploadCmd.Flags().Float64VarP(&cfgPixelSizeValue, "pixel-size", "p", 0, "Pixel size value")
+	uploadCmd.Flags().StringVarP(&cfgPixelSizeUnit, "pixel-size-unit", "u", "um", "Pixel size unit")
 }
