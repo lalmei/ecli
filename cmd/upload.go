@@ -32,8 +32,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// Chunk size is 512k
-const ChunkSize = 512 * 1024
+const (
+	ChunkSize    = 512 // Chunk size is 512kB
+	minChunkSize = 64  // kB
+)
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
@@ -49,6 +51,10 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing image file.")
+		}
+		// Only Chunk size > minChunkSize allowed
+		if cfgChunkSize < minChunkSize {
+			errorExit(fmt.Errorf("Chunk size must be greater than %d", minChunkSize))
 		}
 		endpoint, token, err := config.LoadSession()
 		if err != nil {
@@ -68,30 +74,35 @@ func upload(filename, endpoint, token string) error {
 	}
 	size := fi.Size()
 
-	buf := make([]byte, ChunkSize)
+	buf := make([]byte, int(cfgChunkSize)*1024)
 	f, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	k := 1
-	mtype := "application/json" // FIXME: compute from first chunk
+	var mimeType string // Computed on first chunk of data
 	var offset int64
+	k := 1
 	for {
 		n, err := f.Read(buf)
 		if err != nil {
-			if err == io.EOF && n == 0 {
+			if err == io.EOF {
 				break
 			}
 			return err
 		}
+		if k == 1 {
+			// Compute file's mimetype
+			mimeType = http.DetectContentType(buf)
+		}
+
 		min, max := offset, offset+int64(n)-1
 		fmt.Printf("chunk %d (%d-%d/%d) ...\n", k, min, max, size)
 		offset += int64(n)
 		k++
 
-		_, err = makeMultiPartChunkedRequest(path.Base(filename), endpoint, token, min, max, size, mtype, buf)
+		_, err = makeMultiPartChunkedRequest(path.Base(filename), endpoint, token, min, max, size, mimeType, buf)
 		if err != nil {
 			return err
 		}
@@ -181,12 +192,11 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, min, max, siz
 	if err != nil {
 		return nil, err
 	}
-	/*
+	if !cfgDebug {
 		if _, err := partw.Write(chunk); err != nil {
 			return nil, err
 		}
-	*/
-
+	}
 	r, _ := http.NewRequest("POST", endpoint, simpleReader{buf})
 
 	r.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
@@ -198,8 +208,7 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, min, max, siz
 
 	// Set to true to print the HTTP request. Beware that printing the request's body will make it unavailable
 	// for later processing.
-	debug := true
-	if debug {
+	if cfgDebug {
 		dump, err := httputil.DumpRequest(r, true)
 		if err != nil {
 			return nil, err
@@ -222,4 +231,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// uploadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	uploadCmd.Flags().BoolVar(&cfgDebug, "debug", false, "Show request debugging info only")
+	uploadCmd.Flags().Uint16Var(&cfgChunkSize, "chunk-size", ChunkSize, "Chunk size in kB")
 }
