@@ -11,12 +11,24 @@ import (
 	"github.com/spf13/viper"
 )
 
-const version = "0.3.2"
+const version = "0.4.2"
 
 var (
 	cfgFile  string
 	cfgQuiet bool
 )
+
+func errorExit(err error) {
+	fmt.Fprintln(os.Stderr, err.Error())
+	os.Exit(1)
+}
+
+func usageErrorExit(cmd *cobra.Command, format string, a ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, a...)
+	fmt.Printf("\n\n")
+	fmt.Println(cmd.UsageString())
+	os.Exit(1)
+}
 
 func showHelpAndExit(cmd *cobra.Command, msg string) {
 	fmt.Printf("%s\n\n", msg)
