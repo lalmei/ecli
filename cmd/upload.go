@@ -116,13 +116,11 @@ func upload(filename, endpoint, token string) error {
 		Jar: cookieJar,
 	}
 
-	if !cfgDebug {
-		fmt.Printf("Uploading ")
-	}
-
 	var mimeType string // Computed on first chunk of data
 	var offset int64
+
 	k := 1
+	numChunks := (size / int64(int(cfgChunkSize)*1024)) + 1
 	for {
 		n, err := f.Read(buf)
 		if err != nil {
@@ -155,11 +153,11 @@ func upload(filename, endpoint, token string) error {
 			if err := core.DebugResponse(resp); err != nil {
 				return err
 			}
-			fmt.Printf(".")
+			fmt.Printf("Uploading %.1f%%\r", float64(k)/float64(numChunks)*100)
 		}
 		k++
 	}
-	fmt.Printf(" DONE\nImage %q successfully uploaded to the platform.\n", path.Base(filename))
+	fmt.Printf("\nImage %q successfully uploaded to the platform.\n", path.Base(filename))
 	return nil
 }
 
