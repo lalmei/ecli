@@ -13,15 +13,12 @@ func DebugResponse(resp *http.Response) error {
 		for k, v := range resp.Header {
 			fmt.Printf("%s: %q\n", k, v[0])
 		}
-		fmt.Println()
-		fmt.Println(">> RESPONSE BODY")
+		fmt.Printf("\n>> RESPONSE BODY\n")
 		d, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return err
 		}
-		fmt.Println(string(d))
-		fmt.Println()
-		fmt.Println(">> HTTP ERROR")
+		fmt.Printf("%s\n\n>> HTTP ERROR\n", string(d))
 		return fmt.Errorf(resp.Status)
 	}
 	return nil
