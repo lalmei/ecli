@@ -43,12 +43,14 @@ const (
 )
 
 var (
-	cfgDebug          bool
-	cfgChunkSize      uint16
-	cfgParentId       string
-	cfgImageType      string
-	cfgPixelSizeValue float64
-	cfgPixelSizeUnit  string
+	cfgChunkSize        uint16
+	cfgDebug            bool
+	cfgImageType        string
+	cfgParentId         string
+	cfgPixelSizeUnit    string
+	cfgPixelSizeValue   float64
+	cfgSlideDescription string
+	cfgSlideName        string
 )
 
 // uploadCmd represents the upload command
@@ -86,7 +88,14 @@ to quickly create a Cobra application.`,
 			top := paths[len(paths)-1]
 			cfgParentId = top.(map[string]interface{})["id"].(string)
 		}
-		if err := upload(args[0], endpoint, token); err != nil {
+		filename := args[0]
+		if cfgSlideName == "" {
+			cfgSlideName = path.Base(filename)
+		}
+		if cfgSlideDescription == "" {
+			cfgSlideDescription = "Uploaded with ecli " + version
+		}
+		if err := upload(filename, endpoint, token); err != nil {
 			errorExit(err)
 		}
 	},
@@ -177,12 +186,13 @@ type label struct {
 }
 
 type uploadImageArgs struct {
-	Token     string         `json:"token"`
-	ParentId  bson.ObjectId  `json:"parentId"`
-	SlideName string         `json:"slideName"`
-	PixelSize slidePixelSize `json:"pixelSize"`
-	Labels    []*label       `json:"labels"`
-	ImageType string         `json:"imageType"`
+	Token       string         `json:"token"`
+	ParentId    bson.ObjectId  `json:"parentId"`
+	PixelSize   slidePixelSize `json:"pixelSize"`
+	Labels      []*label       `json:"labels"`
+	ImageType   string         `json:"imageType"`
+	SlideName   string         `json:"slideName"`
+	Description string         `json:"description"`
 }
 
 type simpleReader struct {
@@ -227,7 +237,8 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, parentId bson
 	}
 	args := new(uploadImageArgs)
 	args.Token = token
-	args.SlideName = filename
+	args.SlideName = cfgSlideName
+	args.Description = cfgSlideDescription
 	args.ParentId = parentId
 	args.ImageType = cfgImageType
 	args.PixelSize = slidePixelSize{cfgPixelSizeValue, cfgPixelSizeUnit}
@@ -293,4 +304,6 @@ func init() {
 	uploadCmd.Flags().StringVarP(&cfgImageType, "image-type", "t", "generic-image", "Image type")
 	uploadCmd.Flags().Float64VarP(&cfgPixelSizeValue, "pixel-size", "p", 0, "Pixel size value")
 	uploadCmd.Flags().StringVarP(&cfgPixelSizeUnit, "pixel-size-unit", "u", "um", "Pixel size unit")
+	uploadCmd.Flags().StringVarP(&cfgSlideName, "name", "n", "", "Image name (default filename)")
+	uploadCmd.Flags().StringVarP(&cfgSlideDescription, "description", "d", "", "Image description (default ecli version)")
 }
