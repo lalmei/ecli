@@ -45,7 +45,7 @@ const (
 var (
 	cfgChunkSize        uint16
 	cfgDebug            bool
-	cfgImageType        string
+	cfgImageFormat      string
 	cfgParentId         string
 	cfgPixelSizeUnit    string
 	cfgPixelSizeValue   float64
@@ -78,7 +78,7 @@ to quickly create a Cobra application.`,
 		if cfgChunkSize < minChunkSize {
 			errorExit(fmt.Errorf("Chunk size must be greater than %d", minChunkSize))
 		}
-		if cfgParentId == "" {
+		if cfgParentId == "root" {
 			// Get the root node to attach the image to (as a parent)
 			wl, err := api.WorkList("")
 			if err != nil {
@@ -190,7 +190,7 @@ type uploadImageArgs struct {
 	ParentId    bson.ObjectId  `json:"parentId"`
 	PixelSize   slidePixelSize `json:"pixelSize"`
 	Labels      []*label       `json:"labels"`
-	ImageType   string         `json:"imageType"`
+	ImageFormat string         `json:"imageFormat"`
 	SlideName   string         `json:"slideName"`
 	Description string         `json:"description"`
 }
@@ -213,7 +213,7 @@ type simpleReader struct {
 		-----------------------------15160088341497182101124616286
 		Content-Disposition: form-data; name="extra"
 
-		{"pixelSize":{"value":0.92,"unit":"um"},"slideName":"name","token":"atoken","parentId":"58518280e7798910f77ca485","labels":[{"name":"cell type 1","color":"#5cb85c","description":""}],"imageType":"generic-image"}
+		{"pixelSize":{"value":0.92,"unit":"um"},"slideName":"name","token":"atoken","parentId":"58518280e7798910f77ca485","labels":[{"name":"cell type 1","color":"#5cb85c","description":""}],"imageFormat":"tiff"}
 		-----------------------------15160088341497182101124616286
 		Content-Disposition: form-data; name="files[]"; filename="annotations.json"
 		Content-Type: image/tiff
@@ -240,7 +240,7 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, parentId bson
 	args.SlideName = cfgSlideName
 	args.Description = cfgSlideDescription
 	args.ParentId = parentId
-	args.ImageType = cfgImageType
+	args.ImageFormat = cfgImageFormat
 	args.PixelSize = slidePixelSize{cfgPixelSizeValue, cfgPixelSizeUnit}
 	data, err := json.Marshal(args)
 	if err != nil {
@@ -300,8 +300,8 @@ func init() {
 	// uploadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	uploadCmd.Flags().BoolVar(&cfgDebug, "debug", false, "Show request debugging info only")
 	uploadCmd.Flags().Uint16Var(&cfgChunkSize, "chunk-size", ChunkSize, "Chunk size in kB")
-	uploadCmd.Flags().StringVar(&cfgParentId, "parent-id", "", "Image's parent ID (worklist)")
-	uploadCmd.Flags().StringVarP(&cfgImageType, "image-type", "t", "generic-image", "Image type")
+	uploadCmd.Flags().StringVar(&cfgParentId, "parent-id", "root", "Image's parent ID (worklist)")
+	uploadCmd.Flags().StringVarP(&cfgImageFormat, "image-format", "f", "tiff", "Image Format")
 	uploadCmd.Flags().Float64VarP(&cfgPixelSizeValue, "pixel-size", "p", 0, "Pixel size value")
 	uploadCmd.Flags().StringVarP(&cfgPixelSizeUnit, "pixel-size-unit", "u", "um", "Pixel size unit")
 	uploadCmd.Flags().StringVarP(&cfgSlideName, "name", "n", "", "Image name (default filename)")

@@ -11,17 +11,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// imagetypelsCmd represents the imagetypels command
-var imagetypelsCmd = &cobra.Command{
-	Use:     "imagetypes",
-	Aliases: []string{"it"},
-	Short:   "List all supported image types",
+// imageformatlsCmd represents the imageformatls command
+var imageformatlsCmd = &cobra.Command{
+	Use:     "imageformats",
+	Aliases: []string{"if"},
+	Short:   "List all supported image formats",
 	Run: func(cmd *cobra.Command, args []string) {
-		res, err := api.ImageTypes()
+		res, err := api.ImageFormats()
 		if err != nil {
 			log.Fatal(err)
 		}
-		its := res["imageTypes"]
+		its := res["imageFormats"]
 		if its != nil {
 			for _, it := range its.([]interface{}) {
 				p := it.(map[string]interface{})
@@ -42,15 +42,15 @@ var imagetypelsCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(imagetypelsCmd)
+	RootCmd.AddCommand(imageformatlsCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// imagetypelsCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// imageformatlsCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// imagetypelsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// imageformatlsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
