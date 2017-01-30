@@ -1,5 +1,7 @@
 *.swp
 tags
 ecli
+ecli-*
+ecli.exe
 deploy.mk
 *.xz
