@@ -52,13 +52,8 @@ func showHelpAndExit(cmd *cobra.Command, msg string) {
 var RootCmd = &cobra.Command{
 	Use:   "ecli",
 	Short: "Simple client for Keen Eye Engine",
-	Long: `Ecli is a CLI client for the Keen Eye Engine. It can be used to upload,
-find a slide or get slide information.
-
-Also it is possible no browse the work list like browsing a UNIX filesystem.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Long: `Ecli is a command line client for the Keen Eye Engine. Its primary use is to
+perform slide upload and get slide information in a convenient way.`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.

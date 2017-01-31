@@ -37,7 +37,7 @@ and usage of using your command.
 }
 
 func init() {
-	RootCmd.AddCommand(worklistCmd)
+	// RootCmd.AddCommand(worklistCmd)
 
 	// Here you will define your flags and configuration settings.
 
