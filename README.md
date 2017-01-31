@@ -15,16 +15,15 @@ for your system (or compile from source, see below).
 
 Just type `ecli` in a terminal to get a list of available commands.
 
-# Example
+## Quick Tour
 
 *TBW*
 
 ## Compile From Source
 
-Use `go get` to install the package:
+First ensure you have a Go 1.5+ working installation then install the traditional way:
 
     $ go get github.com/keeneyetech/ecli
-    $ make
 
 ## License
 
