@@ -93,7 +93,7 @@ to quickly create a Cobra application.`,
 			cfgSlideName = path.Base(filename)
 		}
 		if cfgSlideDescription == "" {
-			cfgSlideDescription = "Uploaded with ecli " + version
+			cfgSlideDescription = "Uploaded with ecli " + core.Version
 		}
 		if err := upload(filename, endpoint, token); err != nil {
 			errorExit(err)
@@ -266,7 +266,7 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, parentId bson
 	}
 	r, _ := http.NewRequest("POST", endpoint, simpleReader{buf})
 
-	r.Header.Set("User-Agent", fmt.Sprintf("ecli/%s", version))
+	r.Header.Set("User-Agent", fmt.Sprintf("ecli/%s", core.Version))
 	r.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 	r.Header.Set("Content-Type", fmt.Sprintf("multipart/form-data; boundary=%s", mp.Boundary()))
 	// Coquelicot only reads (and stores) the part named "files[]". So the Content-Range must be the length

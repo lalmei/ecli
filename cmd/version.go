@@ -19,6 +19,7 @@ import (
 	"log"
 
 	"github.com/keeneyetech/ecli/api"
+	"github.com/keeneyetech/ecli/core"
 
 	"github.com/spf13/cobra"
 )
@@ -32,7 +33,7 @@ var versionCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("%s", err)
 		}
-		fmt.Printf("Version: %s\nAPI Version: %s\n", version, v)
+		fmt.Printf("Version: %s\nAPI Version: %s\n", core.Version, v)
 	},
 }
 

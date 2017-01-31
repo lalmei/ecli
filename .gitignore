@@ -5,3 +5,4 @@ ecli-*
 ecli.exe
 deploy.mk
 *.xz
+core/version.go
