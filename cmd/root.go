@@ -90,19 +90,16 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println(`Please first create a config file in $HOME/.ecli.json with the following content:
+		fmt.Println(`Please first create a config file in $HOME/.ecli.json (or anywhere using --config) with the following content adapted to your configuration:
 {
-  "profile1": {
+  "platform": {
     "login": "something",
-    "password: "else",
-	"url": "https://somehost.keeneyetechnologies.com/api/v2",
-  },
-  "profile2": {
-    "login": "something",
-    "password: "else",
+    "password: "pwd",
 	"url": "https://somehost.keeneyetechnologies.com/api/v2",
   }
-}`)
+}
+Then log in with
+  $ ecli login platform`)
 		os.Exit(1)
 	}
 }

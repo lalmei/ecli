@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"runtime"
 
 	"github.com/keeneyetech/ecli/api"
 	"github.com/keeneyetech/ecli/core"
@@ -31,9 +32,15 @@ var versionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		v, err := api.Version()
 		if err != nil {
-			log.Fatalf("%s", err)
+			log.Fatal(err)
 		}
-		fmt.Printf("Version: %s\nAPI Version: %s\n", core.Version, v)
+		fmt.Printf("Version:      %s\n", core.Version)
+		fmt.Printf("Git revision: %s\n", core.GitRevision)
+		fmt.Printf("Git branch:   %s\n", core.GitBranch)
+		fmt.Printf("Go version:   %s\n", runtime.Version())
+		fmt.Printf("Built:        %s\n", core.Built)
+		fmt.Printf("OS/Arch:      %s/%s\n", runtime.GOOS, runtime.GOARCH)
+		fmt.Printf("---\nAPI Version:  %s\n", v)
 	},
 }
 
