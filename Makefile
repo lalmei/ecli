@@ -15,7 +15,7 @@ install:
 	go install
 
 clean:
-	rm -f ecli *.xz
+	rm -f ecli* *.xz
 
 # Optional deploy rules
 -include deploy.mk
