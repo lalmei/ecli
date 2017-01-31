@@ -14,7 +14,7 @@
 
 package main
 
-import "ecli/cmd"
+import "github.com/keeneyetech/ecli/cmd"
 
 func main() {
 	cmd.Execute()

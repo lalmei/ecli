@@ -17,7 +17,7 @@ package cmd
 import (
 	"log"
 
-	"ecli/core"
+	"github.com/keeneyetech/ecli/core"
 
 	"github.com/spf13/cobra"
 )

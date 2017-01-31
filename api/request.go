@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"ecli/config"
+	"github.com/keeneyetech/ecli/config"
 
 	json "github.com/gorilla/rpc/v2/json2"
 )

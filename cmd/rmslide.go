@@ -18,7 +18,7 @@ import (
 	"log"
 	"strconv"
 
-	"ecli/api"
+	"github.com/keeneyetech/ecli/api"
 
 	"github.com/spf13/cobra"
 )

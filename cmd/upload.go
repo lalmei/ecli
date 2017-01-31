@@ -28,9 +28,9 @@ import (
 	"path"
 	"strings"
 
-	"ecli/api"
-	"ecli/config"
-	"ecli/core"
+	"github.com/keeneyetech/ecli/api"
+	"github.com/keeneyetech/ecli/config"
+	"github.com/keeneyetech/ecli/core"
 
 	"github.com/spf13/cobra"
 

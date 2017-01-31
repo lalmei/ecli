@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"ecli/api"
+	"github.com/keeneyetech/ecli/api"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"
