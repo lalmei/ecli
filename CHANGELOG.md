@@ -1,5 +1,6 @@
-## 0.6 (unreleased)
+## 0.6 (2017-02-05)
 
+- Allow passing labels when uploading an image. !14
 - Add support for label CRUD operations. !13
 - Add a --last flag to fetch latest slide info. !12
 - Add support for listing available applications. !10
