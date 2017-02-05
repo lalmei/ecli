@@ -31,7 +31,7 @@ func NewLabel(name, color, desc string) error {
 
 func EditLabel(oldName, name, color, desc string) error {
 	p := map[string]interface{}{
-		"oldName":     name,
+		"oldName":     oldName,
 		"name":        name,
 		"color":       color,
 		"description": desc,
@@ -43,7 +43,7 @@ func EditLabel(oldName, name, color, desc string) error {
 	return nil
 }
 
-func DeleteLabel(oldName, name, color, desc string) error {
+func DeleteLabel(name string) error {
 	p := map[string]interface{}{
 		"name": name,
 	}
@@ -54,7 +54,7 @@ func DeleteLabel(oldName, name, color, desc string) error {
 	return nil
 }
 
-func Label(oldName, name, color, desc string) (map[string]interface{}, error) {
+func Label(name string) (map[string]interface{}, error) {
 	p := map[string]interface{}{
 		"name": name,
 	}
