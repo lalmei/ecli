@@ -24,9 +24,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var cfgInfoLast bool
+
 func slideInfo(args []string) (map[string]interface{}, error) {
 	if len(args) == 0 {
-		return nil, fmt.Errorf("Please provide a slide ID, either as int or hex string.")
+		return nil, fmt.Errorf("Please provide a slide ID (integer)")
 	}
 	id, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
@@ -45,6 +47,31 @@ var infoCmd = &cobra.Command{
 	Aliases: []string{"i"},
 	Short:   "Get slide information",
 	Run: func(cmd *cobra.Command, args []string) {
+		if cfgInfoLast {
+			res, err := api.Search(".") // any
+			if err != nil {
+				log.Fatal(err)
+			}
+			for key, reply := range res {
+				if key != "items" {
+					continue
+				}
+				slides, ok := reply.(map[string]interface{})["slides"]
+				if ok {
+					lslides := slides.([]interface{})
+					if len(lslides) > 0 {
+						s := lslides[len(lslides)-1]
+						slideId := s.(map[string]interface{})["slideId"].(float64)
+						// Rewrite args for later call to slideInfo()
+						args = []string{fmt.Sprintf("%.0f", slideId)}
+						break
+					} else {
+						log.Fatal("No slide uploaded so far, so no info to display.")
+					}
+				}
+			}
+		}
+
 		res, err := slideInfo(args)
 		if err != nil {
 			log.Fatal(err)
@@ -69,4 +96,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// infoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	infoCmd.Flags().BoolVarP(&cfgInfoLast, "last", "l", false, "Show info about last uploaded image")
 }
