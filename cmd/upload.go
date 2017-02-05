@@ -28,6 +28,7 @@ import (
 	"path"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/keeneyetech/ecli/api"
 	"github.com/keeneyetech/ecli/config"
 	"github.com/keeneyetech/ecli/core"
@@ -51,22 +52,35 @@ var (
 	cfgPixelSizeValue   float64
 	cfgSlideDescription string
 	cfgSlideName        string
+	cfgSlideLabels      []string
 )
+
+// Label info to send with upload parameters.
+var customLabels []*label
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
 	Use:     "upload IMAGE",
 	Aliases: []string{"up"},
 	Short:   "Upload an image to the platform",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `For example, uploading a TIFF image with a 1um pixel size and apply 2 "retina"
+and "core" labels on it can be performed with
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+  slide upload myfile.tiff -f tiff -p 1 -l "retina" -l "core"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing image file.")
+		}
+		// First things first, grab label data and check they already exist.
+		if len(cfgSlideLabels) > 0 {
+			customLabels = make([]*label, len(cfgSlideLabels))
+			for k, name := range cfgSlideLabels {
+				l, err := api.Label(name)
+				if err != nil {
+					log.Fatalf("Label %q not found, please create it first. See `ecli label create`.", name)
+				}
+				customLabels[k] = &label{l["name"].(string), l["color"].(string), l["description"].(string)}
+			}
 		}
 		endpoint, token, err := config.LoadSession()
 		if err != nil {
@@ -95,9 +109,11 @@ to quickly create a Cobra application.`,
 		if cfgSlideDescription == "" {
 			cfgSlideDescription = "Uploaded with ecli " + core.Version
 		}
+		fmt.Println("Uploading, please wait ...")
 		if err := upload(filename, endpoint, token); err != nil {
 			errorExit(err)
 		}
+		fmt.Printf("\nImage %q successfully uploaded to the platform.\n", path.Base(filename))
 	},
 }
 
@@ -162,11 +178,10 @@ func upload(filename, endpoint, token string) error {
 			if err := core.DebugResponse(resp); err != nil {
 				return err
 			}
-			fmt.Printf("Uploading %.1f%%\r", float64(k)/float64(numChunks)*100)
+			fmt.Printf("  Uploading %.1f%%\r", float64(k)/float64(numChunks)*100)
 		}
 		k++
 	}
-	fmt.Printf("\nImage %q successfully uploaded to the platform.\n", path.Base(filename))
 	return nil
 }
 
@@ -242,6 +257,8 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, parentId bson
 	args.ParentId = parentId
 	args.ImageFormat = cfgImageFormat
 	args.PixelSize = slidePixelSize{cfgPixelSizeValue, cfgPixelSizeUnit}
+	args.Labels = customLabels
+
 	data, err := json.Marshal(args)
 	if err != nil {
 		return nil, err
@@ -306,4 +323,5 @@ func init() {
 	uploadCmd.Flags().StringVarP(&cfgPixelSizeUnit, "pixel-size-unit", "u", "um", "Pixel size unit")
 	uploadCmd.Flags().StringVarP(&cfgSlideName, "name", "n", "", "Image name (default filename)")
 	uploadCmd.Flags().StringVarP(&cfgSlideDescription, "description", "d", "", "Image description (default ecli version)")
+	uploadCmd.Flags().StringArrayVarP(&cfgSlideLabels, "label", "l", []string{}, "Label to apply on image")
 }

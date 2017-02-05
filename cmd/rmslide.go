@@ -15,11 +15,11 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 
 	"github.com/keeneyetech/ecli/api"
-
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +38,7 @@ var rmslideCmd = &cobra.Command{
 		if err := api.DeleteSlide(id); err != nil {
 			log.Fatalf("can't delete slide: %s", err.Error())
 		}
+		fmt.Println("Slide deleted.")
 	},
 }
 
