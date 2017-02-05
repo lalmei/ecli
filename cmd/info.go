@@ -19,9 +19,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/keeneyetech/ecli/api"
-
 	log "github.com/Sirupsen/logrus"
+	"github.com/keeneyetech/ecli/api"
 	"github.com/spf13/cobra"
 )
 

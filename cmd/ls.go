@@ -37,7 +37,7 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	worklistCmd.AddCommand(lsCmd)
+	// FIXME worklistCmd.AddCommand(lsCmd)
 
 	// Here you will define your flags and configuration settings.
 

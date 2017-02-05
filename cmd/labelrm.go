@@ -17,28 +17,37 @@ package cmd
 import (
 	"fmt"
 
+	log "github.com/Sirupsen/logrus"
+	"github.com/keeneyetech/ecli/api"
 	"github.com/spf13/cobra"
 )
 
-// slideCmd represents the slide command
-var slideCmd = &cobra.Command{
-	Use:   "slide",
-	Short: "Manage slides",
-	Long:  `Use the slide command to upload slides, view slide info and so on.`,
+// labelrmCmd represents the labelrm command
+var labelrmCmd = &cobra.Command{
+	Use:   "rm NAME",
+	Short: "Delete a label",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(cmd.UsageString())
+		if len(args) == 0 {
+			usageErrorExit(cmd, "Missing label name.")
+		}
+		name := args[0]
+		if err := api.DeleteLabel(name); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Label %q deleted.\n", name)
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(slideCmd)
+	labelCmd.AddCommand(labelrmCmd)
+
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// slideCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// labelrmCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// slideCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// labelrmCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -20,25 +20,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// slideCmd represents the slide command
-var slideCmd = &cobra.Command{
-	Use:   "slide",
-	Short: "Manage slides",
-	Long:  `Use the slide command to upload slides, view slide info and so on.`,
+// labelCmd represents the label command
+var labelCmd = &cobra.Command{
+	Use:   "label",
+	Short: "Manage labels",
+	Long: `Labels provide an easy way to categorize the slides and groups based on descriptive
+titles. They can have different colors and a description.
+
+Any number of labels can be applied to slides and groups.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(cmd.UsageString())
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(slideCmd)
+	RootCmd.AddCommand(labelCmd)
+
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// slideCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// labelCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// slideCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// labelCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
