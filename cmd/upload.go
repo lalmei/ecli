@@ -317,7 +317,7 @@ func init() {
 	// uploadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	uploadCmd.Flags().BoolVar(&cfgDebug, "debug", false, "Show request debugging info only")
 	uploadCmd.Flags().Uint16Var(&cfgChunkSize, "chunk-size", ChunkSize, "Chunk size in kB")
-	uploadCmd.Flags().StringVar(&cfgParentId, "parent-id", "root", "Image's parent ID (worklist)")
+	uploadCmd.Flags().StringVarP(&cfgParentId, "group-id", "g", "root", "Image's group ID (worklist)")
 	uploadCmd.Flags().StringVarP(&cfgImageFormat, "image-format", "f", "tiff", "Image Format")
 	uploadCmd.Flags().Float64VarP(&cfgPixelSizeValue, "pixel-size", "p", 0, "Pixel size value")
 	uploadCmd.Flags().StringVarP(&cfgPixelSizeUnit, "pixel-size-unit", "u", "um", "Pixel size unit")
