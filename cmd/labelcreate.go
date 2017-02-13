@@ -28,7 +28,7 @@ var (
 	cfgLabelDesc  string
 )
 
-const dfltBackgroundColor = "#FFFFFF"
+const dfltBackgroundColor = "#FF0000"
 
 // labelcreateCmd represents the labelcreate command
 var labelcreateCmd = &cobra.Command{
