@@ -17,20 +17,30 @@ package cmd
 import (
 	"fmt"
 
+	log "github.com/Sirupsen/logrus"
+	"github.com/keeneyetech/ecli/api"
 	"github.com/spf13/cobra"
 )
 
-// groupCmd represents the group command
-var groupCmd = &cobra.Command{
-	Use:   "group",
-	Short: "Manage groups",
-	Long: `Groups are like directories in a filesystem, useful to organize images. They can have
-a name and a description. Labels can be added to groups.`,
+// groupupdateCmd represents the groupupdate command
+var groupupdateCmd = &cobra.Command{
+	Use:     "update GROUP_ID",
+	Aliases: []string{"up"},
+	Short:   "Update information of existing group",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(cmd.UsageString())
+		if len(args) == 0 {
+			usageErrorExit(cmd, "Missing group ID.")
+		}
+		if err := api.EditGroup(args[0], cfgGroupName, cfgGroupDesc); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Group succcessfully updated.\n")
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(groupCmd)
+	groupCmd.AddCommand(groupupdateCmd)
+
+	groupupdateCmd.Flags().StringVar(&cfgGroupName, "name", "", "Name")
+	groupupdateCmd.Flags().StringVar(&cfgGroupDesc, "desc", "", "Short description")
 }

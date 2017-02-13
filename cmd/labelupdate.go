@@ -26,13 +26,13 @@ import (
 var labelupdateCmd = &cobra.Command{
 	Use:     "update NAME",
 	Aliases: []string{"up"},
-	Short:   "Update information on existing label",
+	Short:   "Update information of existing label",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing label name.")
 		}
 		oldName := args[0]
-		z, err := api.Label(oldName)
+		z, err := api.OneLabel(oldName)
 		if err != nil {
 			log.Fatal(err)
 		}

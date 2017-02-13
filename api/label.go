@@ -16,6 +16,14 @@ package api
 
 import "fmt"
 
+// A label is used for slide annotation. Can tag a slide or 3d region
+// in a slide.
+type Label struct {
+	Name        string `json:"name"`
+	Color       string `json:"color"` // Hex color
+	Description string `json:"description"`
+}
+
 func NewLabel(name, color, desc string) error {
 	p := map[string]interface{}{
 		"name":        name,
@@ -54,7 +62,7 @@ func DeleteLabel(name string) error {
 	return nil
 }
 
-func Label(name string) (map[string]interface{}, error) {
+func OneLabel(name string) (map[string]interface{}, error) {
 	p := map[string]interface{}{
 		"name": name,
 	}

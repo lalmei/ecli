@@ -56,7 +56,26 @@ var (
 )
 
 // Label info to send with upload parameters.
-var customLabels []*label
+var customLabels []*api.Label
+
+func checkLabels(labels []string) ([]*api.Label, error) {
+	if len(labels) == 0 {
+		return nil, nil
+	}
+	customLabels = make([]*api.Label, len(labels))
+	for k, name := range labels {
+		l, err := api.OneLabel(name)
+		if err != nil {
+			return nil, fmt.Errorf("Label %q not found, please create it first. See `ecli label create`.", name)
+		}
+		customLabels[k] = &api.Label{
+			l["name"].(string),
+			l["color"].(string),
+			l["description"].(string),
+		}
+	}
+	return customLabels, nil
+}
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
@@ -71,16 +90,10 @@ and "core" labels on it can be performed with
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing image file.")
 		}
-		// First things first, grab label data and check they already exist.
-		if len(cfgSlideLabels) > 0 {
-			customLabels = make([]*label, len(cfgSlideLabels))
-			for k, name := range cfgSlideLabels {
-				l, err := api.Label(name)
-				if err != nil {
-					log.Fatalf("Label %q not found, please create it first. See `ecli label create`.", name)
-				}
-				customLabels[k] = &label{l["name"].(string), l["color"].(string), l["description"].(string)}
-			}
+		var err error
+		customLabels, err = checkLabels(cfgSlideLabels)
+		if err != nil {
+			log.Fatal(err)
 		}
 		endpoint, token, err := config.LoadSession()
 		if err != nil {
@@ -192,19 +205,11 @@ type slidePixelSize struct {
 	Unit string `json:"unit"`
 }
 
-// A label is used for slide annotation. Can tag a slide or 3d region
-// in a slide.
-type label struct {
-	Name        string `json:"name"`
-	Color       string `json:"color"` // Hex color
-	Description string `json:"description"`
-}
-
 type uploadImageArgs struct {
 	Token       string         `json:"token"`
 	ParentId    bson.ObjectId  `json:"parentId"`
 	PixelSize   slidePixelSize `json:"pixelSize"`
-	Labels      []*label       `json:"labels"`
+	Labels      []*api.Label   `json:"labels"`
 	ImageFormat string         `json:"imageFormat"`
 	SlideName   string         `json:"slideName"`
 	Description string         `json:"description"`
