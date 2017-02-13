@@ -15,9 +15,48 @@ for your system (or compile from source, see below).
 
 Just type `ecli` in a terminal to get a list of available commands.
 
+```
+Ecli is a command line client for the Keen Eye API. Its primary use is to
+perform slide upload and get slide information in a convenient way.
+
+Usage:
+  ecli [command]
+
+Available Commands:
+  applications List all registered applications
+  find         Find slides or groups by criteria
+  group        Manage groups
+  imageformats List all supported image formats
+  label        Manage labels
+  login        Open a session
+  logout       Close current session
+  slide        Manage slides
+  version      Show tool version
+
+Flags:
+      --config string   Config file (default is $HOME/.ecli.json)
+  -q, --quiet           Quiet mode, no verbose output
+  -t, --toggle          Help message for toggle
+
+Use "ecli [command] --help" for more information about a command.
+```
+
+Tip: for every available commands, you can always get some help and examples by running `ecli [command] -h`.
+
 ## Quick Tour
 
-*TBW*
+### Opening a Session
+
+TBW
+
+### Manage Labels
+
+Labels provide an easy way to categorize the images and groups based on descriptive
+titles. They can have a color and a description.
+
+Any number of labels can be applied to images and groups.
+
+Type `ecli label -h` to see availabe subcommands and examples.
 
 ## Compile From Source
 

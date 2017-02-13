@@ -34,6 +34,10 @@ const dfltBackgroundColor = "#FF0000"
 var labelcreateCmd = &cobra.Command{
 	Use:   "create NAME",
 	Short: "Create a label",
+	Long: `Only the label's name is required, but a label can (and should) also be created with a color and
+description:
+
+  create "study/eye" --color #FF0000 --description "Eye study"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing label name.")
@@ -53,6 +57,6 @@ var labelcreateCmd = &cobra.Command{
 func init() {
 	labelCmd.AddCommand(labelcreateCmd)
 
-	labelcreateCmd.Flags().StringVar(&cfgLabelColor, "color", "", "Background color")
+	labelcreateCmd.Flags().StringVar(&cfgLabelColor, "color", "", "Background color matching #RRGGBB")
 	labelcreateCmd.Flags().StringVar(&cfgLabelDesc, "desc", "", "Short description")
 }

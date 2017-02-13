@@ -42,7 +42,7 @@ func usageErrorExit(cmd *cobra.Command, format string, a ...interface{}) {
 
 func showHelpAndExit(cmd *cobra.Command, msg string) {
 	fmt.Printf("%s\n\n", msg)
-	fmt.Println(cmd.UsageString())
+	cmd.Help()
 	os.Exit(1)
 }
 

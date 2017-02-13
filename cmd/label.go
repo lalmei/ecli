@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
@@ -24,12 +22,12 @@ import (
 var labelCmd = &cobra.Command{
 	Use:   "label",
 	Short: "Manage labels",
-	Long: `Labels provide an easy way to categorize the slides and groups based on descriptive
+	Long: `Labels provide an easy way to categorize the images and groups based on descriptive
 titles. They can have different colors and a description.
 
-Any number of labels can be applied to slides and groups.`,
+Any number of labels can be applied to images and groups.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(cmd.UsageString())
+		cmd.Help()
 	},
 }
 
