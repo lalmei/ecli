@@ -49,7 +49,7 @@ Tip: for every available commands, you can always get some help and examples by 
 
 TBW
 
-### Manage Labels
+### Manage Labels
 
 Labels provide an easy way to categorize the images and groups based on descriptive
 titles. They can have a color and a description.
