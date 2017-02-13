@@ -49,8 +49,8 @@ func showHelpAndExit(cmd *cobra.Command, msg string) {
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "ecli",
-	Short: "Simple client for Keen Eye Engine",
-	Long: `Ecli is a command line client for the Keen Eye Engine. Its primary use is to
+	Short: "Simple client for Keen Eye API",
+	Long: `Ecli is a command line client for the Keen Eye API. Its primary use is to
 perform slide upload and get slide information in a convenient way.`,
 }
 
