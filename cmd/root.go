@@ -36,7 +36,7 @@ func errorExit(err error) {
 func usageErrorExit(cmd *cobra.Command, format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
 	fmt.Printf("\n\n")
-	fmt.Println(cmd.UsageString())
+	cmd.Help()
 	os.Exit(1)
 }
 

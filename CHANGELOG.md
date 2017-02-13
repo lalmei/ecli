@@ -1,3 +1,7 @@
+## 0.7
+
+- Add CRUD operations on groups. #17
+
 ## 0.6 (2017-02-05)
 
 - Allow passing labels when uploading an image. #11

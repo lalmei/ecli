@@ -27,11 +27,66 @@ var groupupdateCmd = &cobra.Command{
 	Use:     "update GROUP_ID",
 	Aliases: []string{"up"},
 	Short:   "Update information of existing group",
+	Long: `A new name, description or set of labels can be provided to edit a group. 
+
+Change the description of a group:
+
+  group update 58a1a5b4e7798928257123a0 --desc "A better description"
+
+You can pass several --label flags to add several existing labels:
+
+  group update 58a1a5b4e7798928257123a0 --name "New name" --label caution --label eye
+
+Passing no --label at all will make the labels unchanged for a group, if any. Passing
+--label "" will remove all labels apply on a group:
+
+  group update 58a1a5b4e7798928257123a0 --label ""`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing group ID.")
 		}
-		if err := api.EditGroup(args[0], cfgGroupName, cfgGroupDesc); err != nil {
+		var labels []*api.Label
+		if len(cfgGroupLabels) > 0 {
+			// -l "" will remove all group labels
+			if len(cfgGroupLabels) >= 1 && cfgGroupLabels[0] != "" {
+				var err error
+				labels, err = checkLabels(cfgGroupLabels)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		} else {
+			// No label specified on the CLI so we must pass all existing group's labels
+			// otherwise they will get deleted on update.
+			// FIXME: this can be a slow process; will be faster when the API gets a new
+			// `Groups()` endpoint.
+			res, err := api.Search(".")
+			if err != nil {
+				log.Fatal(err)
+			}
+			for key, reply := range res {
+				if key != "items" {
+					continue
+				}
+				if groups, ok := reply.(map[string]interface{})["groups"]; ok {
+					for _, s := range groups.([]interface{}) {
+						p := s.(map[string]interface{})
+						if p["id"].(string) != args[0] {
+							continue
+						}
+						for _, lab := range p["labels"].([]interface{}) {
+							c := lab.(map[string]interface{})
+							labels = append(labels, &api.Label{
+								c["name"].(string),
+								c["color"].(string),
+								c["description"].(string),
+							})
+						}
+					}
+				}
+			}
+		}
+		if err := api.EditGroup(args[0], cfgGroupName, cfgGroupDesc, labels); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Printf("Group succcessfully updated.\n")
@@ -43,4 +98,5 @@ func init() {
 
 	groupupdateCmd.Flags().StringVar(&cfgGroupName, "name", "", "Name")
 	groupupdateCmd.Flags().StringVar(&cfgGroupDesc, "desc", "", "Short description")
+	groupupdateCmd.Flags().StringArrayVarP(&cfgGroupLabels, "label", "l", []string{}, "Label to apply on group")
 }

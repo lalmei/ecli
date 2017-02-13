@@ -35,7 +35,16 @@ var groupcreateCmd = &cobra.Command{
 	Long: `The group will be attached to the root element by default. A parent group
 ID can also be specified by using --group-id. Example:
 
-  group create "My inner group" --group-id 5881df5ae77989696a8b1702`,
+  group create "My inner group" --group-id 5881df5ae77989696a8b1702
+
+A description can be provided with --desc:
+
+  group create "My inner group" --group-id 5881df5ae77989696a8b1702 --desc "New study"
+
+Also, existing labels can be added a group using --label:
+
+  group create "My inner group" --group-id 5881df5ae77989696a8b1702 --label urgent --label eye`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing group name.")

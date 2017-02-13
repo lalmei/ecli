@@ -32,14 +32,12 @@ func NewGroup(name, desc string, labels []*Label, parentId string) error {
 	return nil
 }
 
-// FIXME: will take a labels parameter once the API has a `Groups()` endpoint
-// to fetch the current labels applied on a group. So for now, no label editing
-// when updating a group.
-func EditGroup(id, name, desc string) error {
+func EditGroup(id, name, desc string, labels []*Label) error {
 	p := map[string]interface{}{
 		"id":          id,
 		"name":        name,
 		"description": desc,
+		"labels":      labels,
 	}
 	_, err := sendRequest("KeenEye.EditGroup", p)
 	if err != nil {
