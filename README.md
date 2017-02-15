@@ -107,6 +107,7 @@ ndpi                           ndpi                           NDPI image
 ndpis                          ndpis                          NDPIS image
 dicom                          dicom                          DICOM image
 ```
+This is the result from a default installation.
 
 ## Slide Upload
 
