@@ -10,7 +10,7 @@ This [Go](https://golang.org) implementation is currently a work in progress.
 
 Please have a quick look at this 2 minutes video showing some useful commands to upload a slide to the Keen Eye platform:
 
-[![asciicast](https://asciinema.org/a/9tnob3xmd5h06wbuekdov702x.png)](https://asciinema.org/a/9tnob3xmd5h06wbuekdov702x)
+[![asciicast](https://asciinema.org/a/103308.png)](https://asciinema.org/a/103308)
 
 ## Download
 
