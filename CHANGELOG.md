@@ -1,5 +1,6 @@
 ## 0.7
 
+- Improve README user documentation. #18
 - Add CRUD operations on groups. #17
 
 ## 0.6 (2017-02-05)
