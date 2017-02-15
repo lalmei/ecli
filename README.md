@@ -45,31 +45,43 @@ Tip: for every available commands, you can always get some help and examples by 
 
 ## Quick Tour
 
-### Configuration File
+### Creating a Config File
 
-`ecli` needs a config file to run. This file holds profile information about the credentials to
-be used in order to connect and use the API.
+`ecli` needs a config file to run. It holds profile information about the credentials to
+be used in order to connect and use the Keen Eye API.
 
-By default, `ecli` will look for a `.ecli.json` file in the current user's home directory but you may want to specify a different file by using the `--config` flag.
+By default, `ecli` will look for an `.ecli.json` file in the current user's home directory but you may want to specify a different file by using the `--config` flag.
 
-The config file is a JSON file like
+The config file contains profile information in a JSON file like
 ```
 {
   "profile1": {
     "login": "<YOUR LOGIN EMAIL ADDRESS>",
     "password": "<YOUR PASSWORD>",
-    "url": "http://<YOUR URL TO PLAFORM>/api/v2"
+    "url": "https://<YOUR URL TO PLAFORM>/api/v2"
   }
 }
 ```
 
 with `<YOUR URL TO PLAFORM>` being the address used by your browser to connect to the platform, like `https://prefix.keeneyetechnologies.com`. Note that the `url` defined in the config file must end with `/api/v2`.
 
-### Opening a Session
+### Sessions
 
-TBW
+Before you can start using the API with `ecli`, you need to open a session. Log in to the service with `ecli login`:
+```
+$ ecli login profile1
+profile1: you have been logged in successfully.
+```
+Now you can start using the API with `ecli`.
 
-### Manage Labels
+Your session may expire 30 minutes later due to inactivity. In this case, you will have to login again. You can also
+explicitely log out from the service:
+```
+$ ecli logout
+Your session is now closed.
+```
+
+### Labels
 
 Labels provide an easy way to categorize the images and groups based on descriptive
 titles. They can have a color and a description.
@@ -77,6 +89,28 @@ titles. They can have a color and a description.
 Any number of labels can be applied to images and groups.
 
 Type `ecli label -h` to see availabe subcommands and examples.
+
+## Groups
+
+Groups are like directories in a filesystem, useful to organize images. They can have
+a name and a description. Labels can be added to groups.
+
+Type `ecli group -h` to see availabe subcommands and examples.
+
+## Image Formats
+
+Use the `imageformats` command to list all supported image formats for your installation. The first column is the image format value to pass to the `slide upload` command during an image upload (see section below).
+```
+$ ecli imageformats
+tiff                           tiff                           TIFF image
+ndpi                           ndpi                           NDPI image
+ndpis                          ndpis                          NDPIS image
+dicom                          dicom                          DICOM image
+```
+
+## Slide Upload
+
+*TBW*
 
 ## Compile From Source
 
