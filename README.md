@@ -45,6 +45,26 @@ Tip: for every available commands, you can always get some help and examples by 
 
 ## Quick Tour
 
+### Configuration File
+
+`ecli` needs a config file to run. This file holds profile information about the credentials to
+be used in order to connect and use the API.
+
+By default, `ecli` will look for a `.ecli.json` file in the current user's home directory but you may want to specify a different file by using the `--config` flag.
+
+The config file is a JSON file like
+```
+{
+  "profile1": {
+    "login": "<YOUR LOGIN EMAIL ADDRESS>",
+    "password": "<YOUR PASSWORD>",
+    "url": "http://<YOUR URL TO PLAFORM>/api/v2"
+  }
+}
+```
+
+with `<YOUR URL TO PLAFORM>` being the address used by your browser to connect to the platform, like `https://prefix.keeneyetechnologies.com`. Note that the `url` defined in the config file must end with `/api/v2`.
+
 ### Opening a Session
 
 TBW
