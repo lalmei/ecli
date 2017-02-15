@@ -6,6 +6,12 @@ the platform and get slide information in a convenient way.
 
 This [Go](https://golang.org) implementation is currently a work in progress.
 
+## See it In Action
+
+Please have a quick look at this 2 minutes video showing some useful commands to upload a slide to the Keen Eye platform:
+
+[![asciicast](https://asciinema.org/a/9tnob3xmd5h06wbuekdov702x.png)](https://asciinema.org/a/9tnob3xmd5h06wbuekdov702x)
+
 ## Download
 
 Using `ecli` is easy since it comes as a static binary with no dependencies. Just [grab the latest compiled version](https://github.com/keeneyetech/ecli/releases/latest)
