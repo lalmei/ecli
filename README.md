@@ -110,7 +110,25 @@ dicom                          dicom                          DICOM image
 
 ## Slide Upload
 
-*TBW*
+`ecli slide upload` can take many parameters, like image format, pixel size (value and unit) and so on. Please type `ecli slide upload -h` to get the full list of available options.
+
+For example, uploading a TIFF image with a 1 micron pixel size and apply two "retina" and "core" labels on it can be performed with
+```
+$ ecli slide upload stained_cells.tif -f tiff -p 1 -l "retina" -l "core"
+```
+
+By default, the slide will be uploaded to the root of the work list. When uploading a slide inside a group somewhere else in the hierarchy is required, the `--group-id` flag can be used.
+
+Say you need to upload a slide into the existing `Study 1` group. You first need to get the group unique ID to use during the upload:
+```
+$ ecli group ls
+58a173aee779892825712398 "Other Group"                
+58a43cc5e779890c2486ca6d "Study 1"
+```
+Group `Study 1` has ID `58a43cc5e779890c2486ca6d`, so to upload the slide into that group, just
+```
+$ ecli slide upload stained_cells.tif --group-id 58a43cc5e779890c2486ca6d
+```
 
 ## Compile From Source
 
