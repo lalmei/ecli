@@ -1,3 +1,7 @@
+## 0.8 (2017-02-19)
+
+- slide upload: encode filename in HTTP request. #21
+
 ## 0.7 (2017-02-15)
 
 - Improve README user documentation. #18
