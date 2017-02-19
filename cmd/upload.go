@@ -24,6 +24,7 @@ import (
 	"net/http/cookiejar"
 	"net/http/httputil"
 	"net/textproto"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -57,6 +58,25 @@ var (
 
 // Label info to send with upload parameters.
 var customLabels []*api.Label
+
+// Jquery File Upload uses the builtin JS encodeURI() to format the filename before sending it.
+// Example: cochléa (crop).tif would be sent as cochl%C3%A9a%20(crop).tif.
+// See jquery.fileupload.js:456
+// The engine needs the same escape mecanism to compute the same temporary chunk filename.
+func encodeURI(s string) string {
+	// Javascript's encodeURI() does not encode the following chars, but Go does so we need
+	// to decode them afterwards.
+	nE := map[byte]string{
+		';': "%3B", ',': "%2C", '/': "%2F", '?': "%3F", ':': "%3A",
+		'@': "%40", '&': "%26", '=': "%3D", '+': "%2B", '$': "%24",
+		'!': "%21", '*': "%2A", '\'': "%27", '(': "%28", ')': "%29",
+	}
+	out := strings.Replace(url.QueryEscape(s), "+", "%20", -1)
+	for a, code := range nE {
+		out = strings.Replace(out, code, string(a), -1)
+	}
+	return out
+}
 
 func checkLabels(labels []string) ([]*api.Label, error) {
 	if len(labels) == 0 {
@@ -289,7 +309,7 @@ func makeMultiPartChunkedRequest(filename, endpoint, token string, parentId bson
 	r, _ := http.NewRequest("POST", endpoint, simpleReader{buf})
 
 	r.Header.Set("User-Agent", fmt.Sprintf("ecli/%s", core.Version))
-	r.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
+	r.Header.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, encodeURI(filename)))
 	r.Header.Set("Content-Type", fmt.Sprintf("multipart/form-data; boundary=%s", mp.Boundary()))
 	// Coquelicot only reads (and stores) the part named "files[]". So the Content-Range must be the length
 	// of that part's body, NOT the length of the body of all parts in the request.
