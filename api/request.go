@@ -57,7 +57,7 @@ func sendRequest(method string, args interface{}) (interface{}, error) {
 	var result interface{}
 	err = json.DecodeClientResponse(resp.Body, &result)
 	if err != nil {
-		if err.Error() == "TokenExpired" {
+		if err.Error() == "TokenExpired" || err.Error() == "bad token" {
 			if err := config.DeleteTokenFile(); err != nil {
 				return nil, err
 			}
