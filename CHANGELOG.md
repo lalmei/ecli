@@ -1,6 +1,7 @@
 ## 0.8 (2017-02-19)
 
 - slide upload: encode filename in HTTP request. #21
+- slide upload: add --sleep option to simulate slow uploads. #20
 
 ## 0.7 (2017-02-15)
 
