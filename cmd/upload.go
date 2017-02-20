@@ -28,6 +28,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/keeneyetech/ecli/api"
@@ -54,6 +55,7 @@ var (
 	cfgSlideDescription string
 	cfgSlideName        string
 	cfgSlideLabels      []string
+	cfgUploadSleep      uint16
 )
 
 // Label info to send with upload parameters.
@@ -214,6 +216,7 @@ func upload(filename, endpoint, token string) error {
 			fmt.Printf("  Uploading %.1f%%\r", float64(k)/float64(numChunks)*100)
 		}
 		k++
+		time.Sleep(time.Duration(cfgUploadSleep) * time.Millisecond)
 	}
 	return nil
 }
@@ -349,4 +352,5 @@ func init() {
 	uploadCmd.Flags().StringVarP(&cfgSlideName, "name", "n", "", "Image name (default filename)")
 	uploadCmd.Flags().StringVarP(&cfgSlideDescription, "description", "d", "", "Image description (default ecli version)")
 	uploadCmd.Flags().StringArrayVarP(&cfgSlideLabels, "label", "l", []string{}, "Label to apply on image")
+	uploadCmd.Flags().Uint16Var(&cfgUploadSleep, "sleep", 0, "Sleep time (in ms) between 2 chunks upload (default 0)")
 }
