@@ -1,6 +1,7 @@
 ## 0.9 (2017-02-21)
 
 - Reading input config file with --config is ignored. #25
+- Windows distribution's binary should end with .exe. #24
 
 ## 0.8 (2017-02-19)
 

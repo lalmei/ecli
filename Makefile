@@ -36,7 +36,8 @@ darwin:
 		(cd ${DISTDIR} && zip -r ${BIN_DARWIN_AMD64}.zip ${PROG})
 
 windows:
-	@cp bin/${BIN_VERSION}-windows* ${BINDIR}/${PROG} && \
+	@rm -f ${BINDIR}/${PROG}
+	@cp bin/${BIN_VERSION}-windows* ${BINDIR}/${PROG}.exe && \
 		(cd ${DISTDIR} && zip -r ${BIN_WINDOWS_AMD64}.zip ${PROG})
 
 freebsd:
