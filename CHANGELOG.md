@@ -1,3 +1,7 @@
+## 0.9 (2017-02-21)
+
+- Reading input config file with --config is ignored. #25
+
 ## 0.8 (2017-02-19)
 
 - slide upload: encode filename in HTTP request. #21
