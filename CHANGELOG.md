@@ -1,3 +1,7 @@
+## 0.9.1 (2017-02-21)
+
+- Config file not parsed if passed to --config. #28
+
 ## 0.9 (2017-02-21)
 
 - Reading input config file with --config is ignored. #25
