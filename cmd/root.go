@@ -80,20 +80,16 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" { // enable ability to specify config file via flag
-		viper.SetConfigFile(cfgFile)
-	}
-
-	viper.SetConfigName(".ecli") // name of config file (without extension)
-	viper.AddConfigPath("$HOME") // adding home directory as first search path
-	viper.AutomaticEnv()         // read in environment variables that match
-
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// If a config file is found, read it in.
-		if err := viper.ReadInConfig(); err != nil {
-			fmt.Println(`Please first create a config file in $HOME/.ecli.json (or anywhere using --config) with the following content adapted to your configuration:
+		viper.SetConfigName(".ecli") // name of config file (without extension)
+		viper.AddConfigPath("$HOME") // adding home directory as first search path
+		viper.AutomaticEnv()         // read in environment variables that match
+	}
+	// If a config file is found, read it in.
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println(`Please first create a config file in $HOME/.ecli.json (or anywhere using --config) with the following content adapted to your configuration:
 {
   "platform": {
     "login": "something",
@@ -103,7 +99,6 @@ func initConfig() {
 }
 Then log in with
   $ ecli login platform`)
-			os.Exit(1)
-		}
+		os.Exit(1)
 	}
 }
