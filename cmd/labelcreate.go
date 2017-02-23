@@ -37,7 +37,7 @@ var labelcreateCmd = &cobra.Command{
 	Long: `Only the label's name is required, but a label can (and should) also be created with a color and
 description:
 
-  create "study/eye" --color #FF0000 --description "Eye study"`,
+  create "study/eye" --color #FF0000 --desc "Eye study"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			usageErrorExit(cmd, "Missing label name.")

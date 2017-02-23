@@ -1,3 +1,7 @@
+## 0.10
+
+- Label create example shows wrong usage for description. #30
+
 ## 0.9.1 (2017-02-21)
 
 - Config file not parsed if passed to --config. #28
