@@ -1,5 +1,6 @@
 ## 0.10
 
+- Do not require to be logged in to show ecli version. #32
 - Label create example shows wrong usage for description. #30
 
 ## 0.9.1 (2017-02-21)
