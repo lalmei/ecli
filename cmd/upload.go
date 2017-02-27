@@ -27,6 +27,8 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"runtime"
+	"runtime/pprof"
 	"strings"
 	"time"
 
@@ -46,16 +48,17 @@ const (
 )
 
 var (
-	cfgChunkSize        uint16
-	cfgDebug            bool
-	cfgImageFormat      string
-	cfgParentId         string
-	cfgPixelSizeUnit    string
-	cfgPixelSizeValue   float64
-	cfgSlideDescription string
-	cfgSlideName        string
-	cfgSlideLabels      []string
-	cfgUploadSleep      uint16
+	cfgChunkSize         uint16
+	cfgDebug             bool
+	cfgImageFormat       string
+	cfgParentId          string
+	cfgPixelSizeUnit     string
+	cfgPixelSizeValue    float64
+	cfgSlideDescription  string
+	cfgSlideName         string
+	cfgSlideLabels       []string
+	cfgUploadSleep       uint16
+	cfgMemoryProfileFile string
 )
 
 // Label info to send with upload parameters.
@@ -144,10 +147,26 @@ and "core" labels on it can be performed with
 		if cfgSlideDescription == "" {
 			cfgSlideDescription = "Uploaded with ecli " + core.Version
 		}
+
 		fmt.Println("Uploading, please wait ...")
 		if err := upload(filename, endpoint, token); err != nil {
 			errorExit(err)
 		}
+
+		// Memory profiling if needed
+		if cfgMemoryProfileFile != "" {
+			f, err := os.Create(cfgMemoryProfileFile)
+			if err != nil {
+				log.Fatal("could not create memory profile: ", err)
+			}
+			defer f.Close()
+			runtime.GC() // Get up-to-date statistics
+			if err := pprof.WriteHeapProfile(f); err != nil {
+				log.Fatal("could not write memory profile: ", err)
+			}
+			fmt.Printf("Wrote memory profile to %q. Use go tool pprof.\n", cfgMemoryProfileFile)
+		}
+
 		fmt.Printf("\nImage %q successfully uploaded to the platform.\n", path.Base(filename))
 	},
 }
@@ -178,6 +197,7 @@ func upload(filename, endpoint, token string) error {
 
 	var mimeType string // Computed on first chunk of data
 	var offset int64
+	multipartBuffer := new(bytes.Buffer)
 
 	k := 1
 	numChunks := (size / int64(int(cfgChunkSize)*1024)) + 1
@@ -201,7 +221,7 @@ func upload(filename, endpoint, token string) error {
 		offset += int64(n)
 
 		r, err := makeMultiPartChunkedRequest(path.Base(filename), endpoint, token,
-			bson.ObjectIdHex(cfgParentId), min, max, size, mimeType, buf)
+			bson.ObjectIdHex(cfgParentId), min, max, size, mimeType, buf, multipartBuffer)
 		if err != nil {
 			return err
 		}
@@ -267,9 +287,8 @@ type simpleReader struct {
 min-max specify the content range within the file.
 */
 func makeMultiPartChunkedRequest(filename, endpoint, token string, parentId bson.ObjectId,
-	min, max, size int64, contentType string, chunk []byte) (*http.Request, error) {
+	min, max, size int64, contentType string, chunk []byte, buf *bytes.Buffer) (*http.Request, error) {
 
-	buf := new(bytes.Buffer)
 	mp := multipart.NewWriter(buf)
 	defer mp.Close()
 
@@ -353,4 +372,5 @@ func init() {
 	uploadCmd.Flags().StringVarP(&cfgSlideDescription, "description", "d", "", "Image description (default ecli version)")
 	uploadCmd.Flags().StringArrayVarP(&cfgSlideLabels, "label", "l", []string{}, "Label to apply on image")
 	uploadCmd.Flags().Uint16Var(&cfgUploadSleep, "sleep", 0, "Sleep time (in ms) between 2 chunks upload (default 0)")
+	uploadCmd.PersistentFlags().StringVar(&cfgMemoryProfileFile, "memprofile", "", "Write memory profile to file")
 }
