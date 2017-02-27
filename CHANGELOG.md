@@ -1,5 +1,6 @@
 ## 0.10
 
+- Fix memory leak during upload. #36
 - Do not require to be logged in to show ecli version. #32
 - Label create example shows wrong usage for description. #30
 
