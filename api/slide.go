@@ -36,3 +36,21 @@ func DeleteSlide(id uint64) error {
 	}
 	return nil
 }
+
+func EditSlide(id, name, desc string, pixelSizeValue float64, pixelSizeUnit, imageFormat string) error {
+	p := map[string]interface{}{
+		"id":          id,
+		"name":        name,
+		"description": desc,
+		"imageFormat": imageFormat,
+		"pixelSize": map[string]interface{}{
+			"value": pixelSizeValue,
+			"unit":  pixelSizeUnit,
+		},
+	}
+	_, err := sendRequest("KeenEye.EditSlide", p)
+	if err != nil {
+		return err
+	}
+	return nil
+}

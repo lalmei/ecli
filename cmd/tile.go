@@ -25,7 +25,7 @@ import (
 
 // tileCmd represents the info command
 var tileCmd = &cobra.Command{
-	Use:   "tile",
+	Use:   "tile SLIDE_ID",
 	Short: "Explicitely run the tiling on a slide",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {

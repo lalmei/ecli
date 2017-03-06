@@ -43,7 +43,7 @@ func slideInfo(args []string) (map[string]interface{}, error) {
 
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
-	Use:     "info",
+	Use:     "info SLIDE_ID",
 	Aliases: []string{"i"},
 	Short:   "Get slide information",
 	Run: func(cmd *cobra.Command, args []string) {
