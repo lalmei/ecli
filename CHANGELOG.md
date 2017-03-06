@@ -1,5 +1,6 @@
 ## 0.10
 
+- Remove file extension when not providing slide name (upload). #34
 - Restart the tiling on an image. #4
 - Fix memory leak during upload. #36
 - Do not require to be logged in to show ecli version. #32
