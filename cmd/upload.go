@@ -143,6 +143,7 @@ and "core" labels on it can be performed with
 		filename := args[0]
 		if cfgSlideName == "" {
 			cfgSlideName = path.Base(filename)
+			cfgSlideName = cfgSlideName[:len(cfgSlideName)-len(path.Ext(cfgSlideName))]
 		}
 		if cfgSlideDescription == "" {
 			cfgSlideDescription = "Uploaded with ecli " + core.Version
