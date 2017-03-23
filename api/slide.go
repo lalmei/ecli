@@ -54,3 +54,15 @@ func EditSlide(id, name, desc string, pixelSizeValue float64, pixelSizeUnit, ima
 	}
 	return nil
 }
+
+func DownloadAnnotations(id uint64) (map[string]interface{}, error) {
+	p := map[string]interface{}{
+		"slideId": id,
+	}
+	v, err := sendRequest("KeenEye.DownloadAnnotations", p)
+	if err != nil {
+		return nil, err
+	}
+	g := v.(map[string]interface{})
+	return g, nil
+}

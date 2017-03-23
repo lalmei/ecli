@@ -17,7 +17,9 @@ package api
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 
 	"github.com/keeneyetech/ecli/config"
 
@@ -25,6 +27,23 @@ import (
 )
 
 var serverAddress string
+
+// DownloadRessource fetches a ressource and write the content to the writer.
+func DownloadRessource(resPath string, out io.Writer) error {
+	server, _, err := config.LoadSession()
+	if err != nil {
+		return err
+	}
+	if server == "" {
+		return fmt.Errorf("empty server url, cannot access endpoint")
+	}
+	resp, err := http.Get(strings.Replace(server, "/api/v2", "", 1) + resPath)
+	if err != nil {
+		return fmt.Errorf("error fetching ressource: %s", err.Error())
+	}
+	_, err = io.Copy(out, resp.Body)
+	return err
+}
 
 func sendRequest(method string, args interface{}) (interface{}, error) {
 	serverAddress, tok, err := config.LoadSession()
