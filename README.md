@@ -115,7 +115,7 @@ dicom                          dicom                          DICOM image
 ```
 This is the result from a default installation.
 
-## Slide Upload
+## Slide Upload
 
 `ecli slide upload` can take many parameters, like image format, pixel size (value and unit) and so on. Please type `ecli slide upload -h` to get the full list of available options.
 
